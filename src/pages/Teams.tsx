@@ -1,35 +1,39 @@
 import * as antd from 'antd';
 import React, { useCallback } from 'react';
 import Swal from 'sweetalert2';
-import { AppContext } from '../AppContext';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { Team, getAllTeams, createTeam, TeamService } from '../utils/team';
 
+const auth = getAuth();
+
 const Teams = () => {
-  const appCtx = React.useContext(AppContext);
   const navigate = useNavigate();
   const [teams, setTeams] = React.useState<Team[]>([]);
 
+  const [user] = useAuthState(auth);
+
   const init = useCallback(async () => {
-    if (appCtx.user) {
-      const teams = await getAllTeams(appCtx.user.email || '');
+    if (user) {
+      const teams = await getAllTeams(user.email || '');
       setTeams(teams);
     } else {
       navigate('/login');
     }
-  }, [appCtx.user, navigate]);
+  }, [user, navigate]);
 
   React.useEffect(() => {
     init();
-  }, [appCtx.user, init]);
+  }, [user, init]);
 
   const addTeam = async () => {
     const projectName = prompt('Enter the project name');
 
-    if (appCtx.user && projectName) {
-      await createTeam(appCtx.user.email || '', projectName);
+    if (user && projectName) {
+      await createTeam(user.email || '', projectName);
 
       init();
     }

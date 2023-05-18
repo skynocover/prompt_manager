@@ -1,18 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { getAuth } from 'firebase/auth';
 
 import { AppContext } from '../AppContext';
+
+const auth = getAuth();
 
 function App() {
   const appCtx = React.useContext(AppContext);
 
   const navigate = useNavigate();
 
+  const [user] = useAuthState(auth);
+
   React.useEffect(() => {
-    if (appCtx.user) {
+    if (user) {
       navigate('/teams');
     }
-  }, [appCtx.user, navigate]);
+  }, [user, navigate]);
 
   return (
     <section className="flex flex-col items-center h-screen md:flex-row">
@@ -55,6 +61,15 @@ function App() {
               <span className="ml-4">Log in with Google</span>
             </div>
           </button>
+
+          <div className="mt-6">
+            <button
+              className="block w-full px-4 py-3 mt-6 font-semibold text-white bg-indigo-500 rounded-lg hover:bg-indigo-400 focus:bg-indigo-400"
+              onClick={() => appCtx.demoSignIn()}
+            >
+              TRY DEMO?
+            </button>
+          </div>
         </div>
       </div>
     </section>

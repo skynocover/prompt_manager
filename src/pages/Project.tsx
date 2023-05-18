@@ -5,30 +5,30 @@ import { useParams, Link } from 'react-router-dom';
 import { AppContext } from '../AppContext';
 import BreadCrumb from '../components/BreadCrumb';
 
-import { getAllProjects, createProject, ProjectService } from '../utils/project';
+import { getAllProjects, createProject, Project } from '../utils/project';
 import { Team, TeamService, createTeam } from '../utils/team';
 
-const Project = () => {
+const ProjectPage = () => {
   const appCtx = React.useContext(AppContext);
 
   const { projectId = '' } = useParams();
 
-  const init = async () => {
-    const p = new ProjectService(appCtx.teamService?.getTeam().id || '', projectId);
-    await p.init();
-    console.log({ p });
+  const init = useCallback(async () => {
+    const p = new Project(appCtx.teamService?.getTeam().id || '', projectId);
+    // await p.init();
+    // console.log({ p });
 
-    appCtx.setProjectService(p);
+    appCtx.setProject(p);
 
     // TODO: 刪除
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     window.project = p;
-  };
+  }, [appCtx, projectId]);
 
   React.useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   return (
     <>
@@ -42,7 +42,7 @@ const Project = () => {
               },
               {
                 href: `/project/${projectId}`,
-                title: appCtx.projectService?.getProject().projectName || '',
+                title: appCtx.Project?.getProject().projectName || '',
               },
             ]}
           />
@@ -52,4 +52,4 @@ const Project = () => {
   );
 };
 
-export default Project;
+export default ProjectPage;

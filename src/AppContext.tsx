@@ -5,24 +5,25 @@ import {
   User,
   signInWithPopup,
   GoogleAuthProvider,
+  signInWithEmailAndPassword,
 } from 'firebase/auth';
 import * as antd from 'antd';
 
 import { TeamService } from './utils/team';
-import { ProjectService } from './utils/project';
+import { Project } from './utils/project';
 
 const provider = new GoogleAuthProvider();
 interface AppContextProps {
-  user: User | undefined;
   setModal: React.Dispatch<any>;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  demoSignIn: () => Promise<void>;
 
   teamService: TeamService | undefined;
   setTeamService: React.Dispatch<React.SetStateAction<TeamService | undefined>>;
 
-  projectService: ProjectService | undefined;
-  setProjectService: React.Dispatch<React.SetStateAction<ProjectService | undefined>>;
+  Project: Project | undefined;
+  setProject: React.Dispatch<React.SetStateAction<Project | undefined>>;
 }
 
 const AppContext = React.createContext<AppContextProps>(undefined!);
@@ -32,12 +33,11 @@ interface AppProviderProps {
 }
 
 const AppProvider = ({ children }: AppProviderProps) => {
-  const [user, setUser] = React.useState<User | undefined>();
   const [modal, setModal] = React.useState<any>(null);
   const auth = getAuth();
 
   const [teamService, setTeamService] = React.useState<TeamService>();
-  const [projectService, setProjectService] = React.useState<ProjectService>();
+  const [Project, setProject] = React.useState<Project>();
 
   React.useEffect(() => {
     init();
@@ -47,7 +47,6 @@ const AppProvider = ({ children }: AppProviderProps) => {
     try {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          setUser(user);
           console.log({ uid: user.uid, token: await user.getIdToken() });
 
           // TODO: 刪除
@@ -85,7 +84,10 @@ const AppProvider = ({ children }: AppProviderProps) => {
 
   const signOut = async () => {
     await auth.signOut();
-    setUser(undefined);
+  };
+
+  const demoSignIn = async () => {
+    await signInWithEmailAndPassword(auth, 'user@gmail.com', '123456');
   };
 
   /////////////////////////////////////////////////////
@@ -93,14 +95,14 @@ const AppProvider = ({ children }: AppProviderProps) => {
   return (
     <AppContext.Provider
       value={{
-        user,
         setModal,
         signIn,
         signOut,
+        demoSignIn,
         teamService,
         setTeamService,
-        projectService,
-        setProjectService,
+        Project,
+        setProject,
       }}
     >
       {children}

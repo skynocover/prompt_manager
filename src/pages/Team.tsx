@@ -4,60 +4,75 @@ import { AppContext } from '../AppContext';
 import { Link } from 'react-router-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { getAuth } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
-import { Project, getAllProjects, createProject, deleteProject } from '../utils/project';
+import {
+  Project,
+  getAllProjects,
+  createProject,
+  deleteProject,
+  IProjectInfo,
+} from '../utils/project';
 import { TeamService } from '../utils/team';
 import BreadCrumb from '../components/BreadCrumb';
+import Chat from '../components/Chat';
+import AddProject, { ProjectFormData } from '../modals/AddProject';
+
+const auth = getAuth();
 
 const TeamPage = () => {
   const appCtx = React.useContext(AppContext);
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
 
   const { teamId = '' } = useParams();
 
-  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [projects, setProjects] = React.useState<IProjectInfo[]>([]);
 
   const init = useCallback(async () => {
-    if (appCtx.user) {
+    if (user) {
       const team = new TeamService(teamId);
       await team.init();
       appCtx.setTeamService(team);
-
       const projects = await getAllProjects(teamId);
       setProjects(projects);
     } else {
       navigate('/login');
     }
-  }, [appCtx, navigate, teamId]);
+    // TODO: Check appCtx
+  }, [navigate, teamId, user]);
 
   React.useEffect(() => {
     init();
-  }, [appCtx.user, init]);
+  }, [user, init]);
 
-  const addProject = async () => {
-    const projectName = prompt('Enter the project name');
+  const addProject = async (projectFormData: ProjectFormData) => {
+    // const projectName = prompt('Enter the project name');
 
-    if (appCtx.user && projectName) {
-      await createProject(appCtx.user.email || '', teamId, projectName);
+    if (user && projectFormData.projectName) {
+      const projectId = await createProject(
+        user.email || '',
+        teamId,
+        projectFormData.projectName,
+        projectFormData.projectDescription,
+      );
+      const project = new Project(teamId, projectId);
+      await project.init();
+      await project.updateOpenAI({
+        apiKey: projectFormData.openAIKey || '',
+        model: projectFormData.model || '',
+        system: projectFormData.system,
+        messages: [],
+      });
+
+      setOpenAddProject(false);
 
       init();
     }
   };
 
-  const deletePj = async (project: Project) => {
-    const { isDenied } = await Swal.fire({
-      title: `Delete Project ${project.projectName}?`,
-      showConfirmButton: false,
-      showDenyButton: true,
-      showCancelButton: true,
-      denyButtonText: 'Delete Project',
-    });
-
-    if (isDenied) {
-      await deleteProject(teamId, project.id);
-      init();
-    }
-  };
+  const [openAddProject, setOpenAddProject] = React.useState(false);
 
   return (
     <>
@@ -71,27 +86,17 @@ const TeamPage = () => {
               },
             ]}
           />
-          <antd.Button type="primary" onClick={addProject}>
+          <antd.Button type="primary" onClick={() => setOpenAddProject(true)}>
             Add
           </antd.Button>
         </div>
-        <div className="bg-slate-500">
-          <antd.Row gutter={16} className="p-2">
-            {projects.map((p) => (
-              <antd.Col span={8} className="p-2">
-                <antd.Card title={p.projectName}>
-                  <antd.Button type="primary">
-                    <Link to={'/project/' + p.id}>Edit</Link>
-                  </antd.Button>
-                  <antd.Button type="ghost" onClick={() => deletePj(p)}>
-                    Delete
-                  </antd.Button>
-                </antd.Card>
-              </antd.Col>
-            ))}
-          </antd.Row>
-        </div>
+        <Chat projects={projects} refresh={init} />
       </div>
+      <AddProject
+        open={openAddProject}
+        onCancel={() => setOpenAddProject(false)}
+        onOk={addProject}
+      />
     </>
   );
 };
