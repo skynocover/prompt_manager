@@ -1,8 +1,9 @@
 import React from 'react';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, Button } from 'antd';
 
 interface ProjectModalProps {
   open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onOk: (values: ProjectFormData) => void;
   onCancel: () => void;
 }
@@ -15,13 +16,32 @@ export interface ProjectFormData {
   system?: string;
 }
 
-const ProjectModal: React.FC<ProjectModalProps> = ({ open, onOk, onCancel }) => {
+export const AddProject = ({ onOk }: { onOk: (values: ProjectFormData) => void }) => {
+  const [openAddProject, setOpenAddProject] = React.useState(false);
+
+  return (
+    <>
+      <Button type="primary" onClick={() => setOpenAddProject(true)}>
+        Add
+      </Button>
+      <ProjectModal
+        open={openAddProject}
+        setOpen={setOpenAddProject}
+        onOk={onOk}
+        onCancel={() => setOpenAddProject(false)}
+      />
+    </>
+  );
+};
+
+const ProjectModal: React.FC<ProjectModalProps> = ({ open, setOpen, onOk, onCancel }) => {
   const [form] = Form.useForm();
 
   const handleOk = () => {
     form.validateFields().then((values: ProjectFormData) => {
       onOk(values);
       form.resetFields();
+      setOpen(false);
     });
   };
 
@@ -56,5 +76,3 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ open, onOk, onCancel }) => 
     </Modal>
   );
 };
-
-export default ProjectModal;
