@@ -1,53 +1,71 @@
-import React, { useCallback } from 'react';
-import * as antd from 'antd';
-import { useParams, Link } from 'react-router-dom';
+import React from 'react';
+import { ChatCompletionRequestMessage } from 'openai';
 
-import { AppContext } from '../AppContext';
 import BreadCrumb from '../components/BreadCrumb';
-
-import { getAllProjects, createProject, Project } from '../utils/project';
-import { Team, TeamService, createTeam } from '../utils/team';
+import Flow from '../components/Flow';
+import ProjectSetting, { ProjectData } from '../components/ProjectSetting';
+import ChatsAndMessage from '../components/ChatsAndMessage';
+import { sendMessage as simpleSendMessage } from '../utils/openai';
+import { useProject } from '../domains/project';
 
 const ProjectPage = () => {
-  const appCtx = React.useContext(AppContext);
+  const [loading, setLoading] = React.useState(false);
 
-  const { projectId = '' } = useParams();
+  const { updateProject, project } = useProject();
 
-  const init = useCallback(async () => {
-    const p = new Project(appCtx.teamService?.getTeam().id || '', projectId);
-    // await p.init();
-    // console.log({ p });
+  const onSave = async (projectData: ProjectData) => {
+    if (project) {
+      await updateProject.mutateAsync({
+        projectName: projectData.projectName,
+        projectDescription: projectData.projectDescription,
+        apiKey: projectData.openAIKey,
+        model: projectData.model,
+        system: projectData.system,
+      });
+    }
+  };
 
-    appCtx.setProject(p);
+  const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
 
-    // TODO: 刪除
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    window.project = p;
-  }, [appCtx, projectId]);
-
-  React.useEffect(() => {
-    init();
-  }, [init]);
+  const onSendMessage = async (content: string) => {
+    setLoading(true);
+    try {
+      const returnMessages = await simpleSendMessage(
+        content,
+        project?.apiKey || '',
+        project?.system || '',
+        messages,
+      );
+      setMessages(returnMessages);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
 
   return (
     <>
-      <div className="m-2">
-        <div className="flex justify-between mb-2">
-          <BreadCrumb
-            paths={[
-              {
-                href: `/team/${appCtx.teamService?.getTeam().id}`,
-                title: appCtx.teamService?.getTeam().teamName || '',
-              },
-              {
-                href: `/project/${projectId}`,
-                title: appCtx.Project?.getProject().projectName || '',
-              },
-            ]}
-          />
-        </div>
+      <div className="fixed left-0 z-20 flex justify-between p-2 bg-white">
+        <BreadCrumb />
       </div>
+      <>
+        <div className="fixed right-0 z-20 p-3 -translate-y-1/2 bg-white rounded-md top-1/2">
+          {project && (
+            <ProjectSetting
+              projectData={{
+                projectName: project.projectName,
+                projectDescription: project.projectDescription,
+                openAIKey: project.apiKey || '',
+                model: project.model || '',
+                system: project.system || '',
+              }}
+              onSave={onSave}
+            />
+          )}
+          <ChatsAndMessage loading={loading} messages={messages} onSendMessage={onSendMessage} />
+        </div>
+      </>
+      <Flow />
     </>
   );
 };

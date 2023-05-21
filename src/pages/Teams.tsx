@@ -6,36 +6,32 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-import { Team, getAllTeams, createTeam, TeamService } from '../utils/team';
+import { useTeams, Team } from '../domains/teams';
 
 const auth = getAuth();
 
 const Teams = () => {
   const navigate = useNavigate();
-  const [teams, setTeams] = React.useState<Team[]>([]);
 
-  const [user] = useAuthState(auth);
+  const { teams, createTeam, delTeam } = useTeams();
+
+  const [user, loading] = useAuthState(auth);
 
   const init = useCallback(async () => {
-    if (user) {
-      const teams = await getAllTeams(user.email || '');
-      setTeams(teams);
-    } else {
+    if (!loading && !user) {
       navigate('/login');
     }
-  }, [user, navigate]);
+  }, [user, navigate, loading]);
 
   React.useEffect(() => {
     init();
   }, [user, init]);
 
   const addTeam = async () => {
-    const projectName = prompt('Enter the project name');
+    const teamName = prompt('Enter the teamName name');
 
-    if (user && projectName) {
-      await createTeam(user.email || '', projectName);
-
-      init();
+    if (user && teamName) {
+      await createTeam.mutateAsync({ teamName });
     }
   };
 
@@ -49,9 +45,7 @@ const Teams = () => {
     });
 
     if (isDenied) {
-      const teamService = new TeamService(team.id);
-      await teamService.delete();
-      init();
+      await delTeam.mutateAsync(team.id);
     }
   };
 
@@ -92,7 +86,7 @@ const Teams = () => {
         </div>
         <antd.Table
           scroll={{ x: 800 }}
-          dataSource={teams.map((team) => {
+          dataSource={teams?.map((team) => {
             return { key: team.id, ...team };
           })}
           columns={columns}

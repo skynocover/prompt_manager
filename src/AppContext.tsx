@@ -2,15 +2,11 @@ import React from 'react';
 import {
   getAuth,
   onAuthStateChanged,
-  User,
   signInWithPopup,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
 import * as antd from 'antd';
-
-import { TeamService } from './utils/team';
-import { Project } from './utils/project';
 
 const provider = new GoogleAuthProvider();
 interface AppContextProps {
@@ -19,11 +15,11 @@ interface AppContextProps {
   signOut: () => Promise<void>;
   demoSignIn: () => Promise<void>;
 
-  teamService: TeamService | undefined;
-  setTeamService: React.Dispatch<React.SetStateAction<TeamService | undefined>>;
+  teamId: string | undefined;
+  setTeamId: React.Dispatch<React.SetStateAction<string | undefined>>;
 
-  Project: Project | undefined;
-  setProject: React.Dispatch<React.SetStateAction<Project | undefined>>;
+  projectId: string | undefined;
+  setProjectId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 const AppContext = React.createContext<AppContextProps>(undefined!);
@@ -36,8 +32,8 @@ const AppProvider = ({ children }: AppProviderProps) => {
   const [modal, setModal] = React.useState<any>(null);
   const auth = getAuth();
 
-  const [teamService, setTeamService] = React.useState<TeamService>();
-  const [Project, setProject] = React.useState<Project>();
+  const [teamId, setTeamId] = React.useState<string>();
+  const [projectId, setProjectId] = React.useState<string>();
 
   React.useEffect(() => {
     init();
@@ -99,10 +95,12 @@ const AppProvider = ({ children }: AppProviderProps) => {
         signIn,
         signOut,
         demoSignIn,
-        teamService,
-        setTeamService,
-        Project,
-        setProject,
+
+        teamId,
+        setTeamId,
+
+        projectId,
+        setProjectId,
       }}
     >
       {children}
