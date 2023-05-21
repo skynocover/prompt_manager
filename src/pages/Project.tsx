@@ -1,16 +1,10 @@
-import React from 'react';
-import { ChatCompletionRequestMessage } from 'openai';
-
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
 import ProjectSetting, { ProjectData } from '../components/ProjectSetting';
-import ChatsAndMessage from '../components/ChatsAndMessage';
-import { sendMessage as simpleSendMessage } from '../utils/openai';
 import { useProject } from '../domains/project';
+import { TestChat } from '../modals/TestChat';
 
 const ProjectPage = () => {
-  const [loading, setLoading] = React.useState(false);
-
   const { updateProject, project } = useProject();
 
   const onSave = async (projectData: ProjectData) => {
@@ -23,24 +17,6 @@ const ProjectPage = () => {
         system: projectData.system,
       });
     }
-  };
-
-  const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
-
-  const onSendMessage = async (content: string) => {
-    setLoading(true);
-    try {
-      const returnMessages = await simpleSendMessage(
-        content,
-        project?.apiKey || '',
-        project?.system || '',
-        messages,
-      );
-      setMessages(returnMessages);
-    } catch (error) {
-      console.log(error);
-    }
-    setLoading(false);
   };
 
   return (
@@ -60,7 +36,7 @@ const ProjectPage = () => {
             }}
             onSave={onSave}
           />
-          <ChatsAndMessage loading={loading} messages={messages} onSendMessage={onSendMessage} />
+          <TestChat />
         </div>
       </>
       <Flow />

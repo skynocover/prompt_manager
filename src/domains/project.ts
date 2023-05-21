@@ -89,32 +89,25 @@ export const useProject = () => {
     },
   );
 
-  const sendMessage = useMutation(async (content: string) => {
-    if (!project?.openai) return;
+  const sendMessages = useMutation(
+    async ({ messages, system }: { messages: ChatCompletionRequestMessage[]; system?: string }) => {
+      if (!project?.openai) return;
 
-    const tempMessage: ChatCompletionRequestMessage[] = [
-      ...(project.messages || []),
-      { role: 'user', content },
-    ];
+      if (system) {
+        messages.unshift({ role: 'system', content: system });
+      } else if (project.system) {
+        messages.unshift({ role: 'system', content: project.system });
+      }
 
-    const messages = project.system
-      ? [
-          {
-            role: 'system',
-            content: project.system,
-          } as ChatCompletionRequestMessage,
-          ...tempMessage,
-        ]
-      : tempMessage;
+      const { data } = await project.openai.createChatCompletion({
+        model: project.model || 'gpt-3.5-turbo',
+        messages,
+      });
+      if (data.choices[0].message) {
+        return data.choices[0].message;
+      }
+    },
+  );
 
-    const { data } = await project.openai.createChatCompletion({
-      model: project.model || 'gpt-3.5-turbo',
-      messages,
-    });
-    if (data.choices[0].message) {
-      return data.choices[0].message;
-    }
-  });
-
-  return { isLoading, error, updateProject, sendMessage, project };
+  return { isLoading, error, updateProject, sendMessages, project };
 };

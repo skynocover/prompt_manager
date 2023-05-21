@@ -24,7 +24,7 @@ const TeamPage = () => {
   const { teamId = '' } = useParams();
 
   const { createProject } = useTeam();
-  const { sendMessage, project, updateProject } = useProject();
+  const { sendMessages, project, updateProject } = useProject();
 
   const [chatLoading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
@@ -59,7 +59,9 @@ const TeamPage = () => {
     setLoading(true);
     try {
       setMessages([...messages, { role: 'user', content: message }]);
-      const resp = await sendMessage.mutateAsync(message);
+      const resp = await sendMessages.mutateAsync({
+        messages: [...messages, { role: 'user', content: message }],
+      });
       if (resp) {
         setMessages([...messages, { role: 'user', content: message }, resp]);
       }

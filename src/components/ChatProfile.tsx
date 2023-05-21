@@ -10,7 +10,7 @@ import { useProject, Project } from '../domains/project';
 const ChatProfile = () => {
   const appCtx = React.useContext(AppContext);
 
-  const { updateProject, project } = useProject();
+  const { project } = useProject();
   const { delProject } = useTeam();
 
   const deletePj = async (project: Project) => {

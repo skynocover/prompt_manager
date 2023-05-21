@@ -42,13 +42,7 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ projectData, onSave }) =>
     }
     if (type === 'textArea') {
       return (
-        <Input.TextArea
-          rows={6}
-          name={name}
-          value={editedProjectData[name]}
-          onChange={handleChange}
-          className="w-full"
-        />
+        <Input.TextArea rows={6} name={name} value={editedProjectData[name]} className="w-full" />
       );
     }
     return (
@@ -62,7 +56,7 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ projectData, onSave }) =>
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8">
+    <div className="max-w-md mx-auto mt-4">
       <div className="mb-4">
         <div className="mb-2 font-bold">專案名稱</div>
         {renderEditableInput('projectName')}
@@ -82,10 +76,6 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ projectData, onSave }) =>
       <div className="mb-4">
         <div className="mb-2 font-bold">系統</div>
         {renderEditableInput('system', 'textArea')}
-      </div>
-      <div className="mb-4">
-        <div className="mb-2 font-bold">模型內容</div>
-        <Input.TextArea value="模型內容" disabled className="w-full bg-gray-200" rows={4} />
       </div>
       <Button type="primary" onClick={handleSave} className="float-right">
         保存
