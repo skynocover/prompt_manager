@@ -30,10 +30,6 @@ const ChatProfile = () => {
     }
   };
 
-  const saveChat = async () => {
-    await updateProject.mutateAsync({});
-  };
-
   return (
     <>
       <div className="w-2/5 px-5 border-l-2">
@@ -44,9 +40,7 @@ const ChatProfile = () => {
               <antd.Button type="primary">
                 <Link to={'/project/' + project.id}>Edit</Link>
               </antd.Button>
-              <antd.Button type="primary" onClick={saveChat}>
-                保存對話
-              </antd.Button>
+
               <antd.Button type="ghost" onClick={() => deletePj(project)}>
                 Delete
               </antd.Button>

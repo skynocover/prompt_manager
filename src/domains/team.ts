@@ -73,7 +73,7 @@ export const useTeam = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['Projects', appCtx.teamId] });
+        queryClient.invalidateQueries({ queryKey: ['Team', appCtx.teamId] });
       },
     },
   );
@@ -84,7 +84,7 @@ export const useTeam = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['Projects', appCtx.teamId] });
+        queryClient.invalidateQueries({ queryKey: ['Team', appCtx.teamId] });
       },
     },
   );

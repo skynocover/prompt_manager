@@ -26,7 +26,7 @@ export const useProject = () => {
     isLoading,
     error,
     data: project,
-  } = useQuery({
+  } = useQuery<Project>({
     queryKey: ['Project', appCtx.projectId],
     queryFn: async () => {
       if (!appCtx.teamId || !appCtx.projectId) return {};
@@ -43,10 +43,10 @@ export const useProject = () => {
           projectName,
           projectDescription,
           openai,
-          apiKey: openAIChat.apiKey,
-          model: openAIChat.model,
-          system: openAIChat.system,
-          messages: openAIChat.messages,
+          apiKey: openAIChat?.apiKey,
+          model: openAIChat?.model,
+          system: openAIChat?.system,
+          messages: openAIChat?.messages,
         };
       }
       return {};
@@ -89,36 +89,32 @@ export const useProject = () => {
     },
   );
 
-  const sendMessage = useMutation(
-    async (content: string) => {
-      if (!project?.openai) return;
+  const sendMessage = useMutation(async (content: string) => {
+    if (!project?.openai) return;
 
-      project.messages.push({ role: 'user', content });
+    const tempMessage: ChatCompletionRequestMessage[] = [
+      ...(project.messages || []),
+      { role: 'user', content },
+    ];
 
-      const messages = project.system
-        ? [
-            {
-              role: 'system',
-              content: project.system,
-            } as ChatCompletionRequestMessage,
-            ...project.messages,
-          ]
-        : project.messages;
+    const messages = project.system
+      ? [
+          {
+            role: 'system',
+            content: project.system,
+          } as ChatCompletionRequestMessage,
+          ...tempMessage,
+        ]
+      : tempMessage;
 
-      const { data } = await project.openai.createChatCompletion({
-        model: project.model || 'gpt-3.5-turbo',
-        messages,
-      });
-      if (data.choices[0].message) {
-        project.messages.push(data.choices[0].message);
-      }
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['Project', appCtx.projectId] });
-      },
-    },
-  );
+    const { data } = await project.openai.createChatCompletion({
+      model: project.model || 'gpt-3.5-turbo',
+      messages,
+    });
+    if (data.choices[0].message) {
+      return data.choices[0].message;
+    }
+  });
 
   return { isLoading, error, updateProject, sendMessage, project };
 };

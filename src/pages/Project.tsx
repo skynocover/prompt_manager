@@ -50,18 +50,16 @@ const ProjectPage = () => {
       </div>
       <>
         <div className="fixed right-0 z-20 p-3 -translate-y-1/2 bg-white rounded-md top-1/2">
-          {project && (
-            <ProjectSetting
-              projectData={{
-                projectName: project.projectName,
-                projectDescription: project.projectDescription,
-                openAIKey: project.apiKey || '',
-                model: project.model || '',
-                system: project.system || '',
-              }}
-              onSave={onSave}
-            />
-          )}
+          <ProjectSetting
+            projectData={{
+              projectName: project?.projectName || '',
+              projectDescription: project?.projectDescription || '',
+              openAIKey: project?.apiKey || '',
+              model: project?.model || '',
+              system: project?.system || '',
+            }}
+            onSave={onSave}
+          />
           <ChatsAndMessage loading={loading} messages={messages} onSendMessage={onSendMessage} />
         </div>
       </>

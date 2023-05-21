@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import * as antd from 'antd';
 import { getAuth } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { ChatCompletionRequestMessage } from 'openai';
 
 import { AppContext } from '../AppContext';
 import ChatsAndMessage from '../components/ChatsAndMessage';
@@ -22,9 +24,18 @@ const TeamPage = () => {
   const { teamId = '' } = useParams();
 
   const { createProject } = useTeam();
-  const { sendMessage, project } = useProject();
+  const { sendMessage, project, updateProject } = useProject();
 
   const [chatLoading, setLoading] = React.useState(false);
+  const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
+
+  React.useEffect(() => {
+    if (project?.messages) {
+      setMessages(project.messages);
+    } else if (project) {
+      setMessages([]);
+    }
+  }, [project]);
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -51,11 +62,19 @@ const TeamPage = () => {
   const onSendMessage = async (message: string) => {
     setLoading(true);
     try {
-      await sendMessage.mutateAsync(message);
+      setMessages([...messages, { role: 'user', content: message }]);
+      const resp = await sendMessage.mutateAsync(message);
+      if (resp) {
+        setMessages([...messages, { role: 'user', content: message }, resp]);
+      }
     } catch (error) {
       console.log(error);
     }
     setLoading(false);
+  };
+
+  const saveChat = async () => {
+    await updateProject.mutateAsync({ messages });
   };
 
   return (
@@ -72,11 +91,17 @@ const TeamPage = () => {
             </div>
             <div className="flex flex-row justify-between bg-white">
               <ChatSideBar />
+
               <div className="flex flex-col justify-between w-full px-5">
+                <div className="flex justify-end">
+                  <antd.Button disabled={chatLoading} type="primary" onClick={saveChat}>
+                    保存對話
+                  </antd.Button>
+                </div>
                 {project && (
                   <ChatsAndMessage
                     loading={chatLoading}
-                    messages={project.messages || []}
+                    messages={messages}
                     onSendMessage={onSendMessage}
                   />
                 )}
