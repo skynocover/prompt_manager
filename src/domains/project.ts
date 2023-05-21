@@ -33,9 +33,9 @@ export const useProject = () => {
       const docRef = doc(firestore, 'teams', appCtx.teamId, 'projects', appCtx.projectId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { projectName, projectDescription, openAIChat } = docSnap.data();
+        const { projectName, projectDescription, apiKey, model, system, messages } = docSnap.data();
 
-        const configuration = new Configuration({ apiKey: openAIChat?.apiKey || '' });
+        const configuration = new Configuration({ apiKey: apiKey || '' });
         const openai = new OpenAIApi(configuration);
 
         return {
@@ -43,10 +43,10 @@ export const useProject = () => {
           projectName,
           projectDescription,
           openai,
-          apiKey: openAIChat?.apiKey,
-          model: openAIChat?.model,
-          system: openAIChat?.system,
-          messages: openAIChat?.messages,
+          apiKey,
+          model,
+          system,
+          messages,
         };
       }
       return {};

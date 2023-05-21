@@ -1,19 +1,12 @@
 import React from 'react';
 import { Modal, Form, Input, Button } from 'antd';
+import { ProjectFormData } from '../domains/team';
 
 interface ProjectModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onOk: (values: ProjectFormData) => void;
   onCancel: () => void;
-}
-
-export interface ProjectFormData {
-  projectName: string;
-  projectDescription?: string;
-  openAIKey?: string;
-  model?: string;
-  system?: string;
 }
 
 export const AddProject = ({ onOk }: { onOk: (values: ProjectFormData) => void }) => {

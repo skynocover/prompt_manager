@@ -13,6 +13,14 @@ export interface IProjectInfo {
   projectDescription: string;
 }
 
+export interface ProjectFormData {
+  projectName: string;
+  projectDescription?: string;
+  openAIKey?: string;
+  model?: string;
+  system?: string;
+}
+
 export const getAllProjects = async (teamId: string): Promise<IProjectInfo[]> => {
   const querySnapshot = await getDocs(query(collection(firestore, 'teams', teamId, 'projects')));
   return querySnapshot.docs.map((doc) => {
@@ -55,21 +63,10 @@ export const useTeam = () => {
   });
 
   const createProject = useMutation(
-    async ({
-      teamId,
-      projectName,
-      projectDescription,
-    }: {
-      teamId: string;
-      projectName: string;
-      projectDescription?: string;
-    }) => {
+    async ({ teamId, projectFormData }: { teamId: string; projectFormData: ProjectFormData }) => {
       const projectId = createId();
 
-      await setDoc(doc(firestore, 'teams', teamId, 'projects', projectId), {
-        projectName,
-        projectDescription,
-      });
+      await setDoc(doc(firestore, 'teams', teamId, 'projects', projectId), projectFormData);
     },
     {
       onSuccess: () => {

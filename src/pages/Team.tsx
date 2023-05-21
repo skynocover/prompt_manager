@@ -8,9 +8,9 @@ import { ChatCompletionRequestMessage } from 'openai';
 import { AppContext } from '../AppContext';
 import ChatsAndMessage from '../components/ChatsAndMessage';
 import BreadCrumb from '../components/BreadCrumb';
-import { AddProject, ProjectFormData } from '../modals/AddProject';
+import { AddProject } from '../modals/AddProject';
 import { useProject } from '../domains/project';
-import { useTeam } from '../domains/team';
+import { useTeam, ProjectFormData } from '../domains/team';
 import ChatSideBar from '../components/ChatSideBar';
 import ChatProfile from '../components/ChatProfile';
 
@@ -51,11 +51,7 @@ const TeamPage = () => {
 
   const addProject = async (projectFormData: ProjectFormData) => {
     if (user && projectFormData.projectName) {
-      await createProject.mutateAsync({
-        teamId,
-        projectName: projectFormData.projectName,
-        projectDescription: projectFormData.projectDescription,
-      });
+      await createProject.mutateAsync({ teamId, projectFormData });
     }
   };
 
