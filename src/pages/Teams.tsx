@@ -5,10 +5,13 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
+import { AppContext } from '../AppContext';
 import { useTeams, Team } from '../domains/teams';
+import BreadCrumb from '../components/BreadCrumb';
 import { auth } from '../utils/firebase';
 
 const Teams = () => {
+  const appCtx = React.useContext(AppContext);
   const navigate = useNavigate();
 
   const { teams, createTeam, delTeam } = useTeams();
@@ -16,6 +19,9 @@ const Teams = () => {
   const [user, loading] = useAuthState(auth);
 
   const init = useCallback(async () => {
+    appCtx.setTeamId(undefined);
+    appCtx.setProjectId(undefined);
+
     if (!loading && !user) {
       navigate('/login');
     }
@@ -77,7 +83,8 @@ const Teams = () => {
   return (
     <>
       <div className="m-2">
-        <div className="flex justify-end mb-2">
+        <div className="flex justify-between mb-2">
+          <BreadCrumb />
           <antd.Button type="primary" onClick={addTeam}>
             Add
           </antd.Button>

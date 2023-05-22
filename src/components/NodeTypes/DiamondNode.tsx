@@ -1,6 +1,6 @@
 import { NodeProps, Handle, Position } from 'reactflow';
 
-const DiamondNode = ({ id, data }: NodeProps) => {
+export const DiamondNode = ({ id, data }: NodeProps) => {
   return (
     <div id={id} className="relative w-[160px] h-[60px]">
       <svg viewBox="0 0 160 60" preserveAspectRatio="xMidYMid meet" width="100%">
@@ -17,5 +17,3 @@ const DiamondNode = ({ id, data }: NodeProps) => {
     </div>
   );
 };
-
-export default DiamondNode;

@@ -6,27 +6,19 @@ import ReactFlow, {
   Edge,
   XYPosition,
   Connection,
-  MiniMap,
   Background,
   OnConnectStartParams,
 } from 'reactflow';
 
 import { FlowContext } from '../components/FlowContext';
-import DiamondNode from './NodeTypes/DiamondNode';
-import StepNode from './NodeTypes/StepNode';
+import { nodeTypes } from './NodeTypes';
 
-const nodeTypes = {
-  diamondNode: DiamondNode,
-  stepNode: StepNode,
-};
-
-const getNewNode = (position: XYPosition, type = 'default'): Node => {
+const getNewNode = (position: XYPosition, type = 'default', content?: string): Node => {
   const id = `${+new Date()}`;
-  return { id, data: { label: `Node ${id}` }, position, type };
+  return { id, data: { content, label: `Node ${id}` }, position, type };
 };
 
 const fitViewOptions = { padding: 3 };
-const minimapStyle = { height: 100 };
 
 let preX = 0;
 let preY = 0;
@@ -159,6 +151,7 @@ const Flow = () => {
       // eslint-disable-next-line no-unsafe-optional-chaining
       const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
+      const content = event.dataTransfer.getData('application/reactflow_content');
 
       if (typeof type === 'undefined' || !type || !reactFlowBounds || !rfInstance) return;
 
@@ -167,14 +160,13 @@ const Flow = () => {
         y: event.clientY - reactFlowBounds.top - 20,
       });
 
-      setNodes((nds) => nds.concat(getNewNode(position, type)));
+      setNodes((nds) => nds.concat(getNewNode(position, type, content)));
     },
     [rfInstance, setNodes],
   );
 
   return (
     <div className="flex h-screen bg-slate-800" ref={reactFlowWrapper}>
-      <ToolBox />
       <ReactFlow
         onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
@@ -200,40 +192,5 @@ const Flow = () => {
     </div>
   );
 };
-
-function ToolBox() {
-  const onDragStart = (event: any, nodeType: string) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
-  };
-
-  return (
-    <div className="fixed left-0 z-20 p-2 m-1 transform -translate-y-1/2 bg-white rounded-lg shadow-lg top-1/2">
-      <div className="mx-2 my-1 text-xl font-bold">Tool Box</div>
-      <div
-        className="items-center justify-center p-1 my-1 text-xl border border-black border-solid rounded-md"
-        onDragStart={(event) => onDragStart(event, 'default')}
-        draggable
-      >
-        Node
-      </div>
-
-      <div
-        className="items-center justify-center p-1 my-1 text-xl border border-black border-solid rounded-md"
-        onDragStart={(event) => onDragStart(event, 'diamondNode')}
-        draggable
-      >
-        Diamond Node
-      </div>
-      <div
-        className="items-center justify-center p-1 my-1 text-xl border border-black border-solid rounded-md"
-        onDragStart={(event) => onDragStart(event, 'stepNode')}
-        draggable
-      >
-        Step Node
-      </div>
-    </div>
-  );
-}
 
 export default Flow;

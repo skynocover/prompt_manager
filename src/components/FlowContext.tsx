@@ -44,8 +44,8 @@ interface AppProviderProps {
 const initialNodes: Node[] = [
   {
     id: '0',
-    type: 'input',
-    data: { label: '輸入對話主題' },
+    type: 'systemNode',
+    data: { label: '輸入' },
     position: { x: 0, y: 50 },
     width: 150,
     height: 40,
@@ -53,7 +53,7 @@ const initialNodes: Node[] = [
   {
     id: '1',
     type: 'output',
-    data: { label: '決定輸出格式' },
+    data: { label: '輸出' },
     position: { x: 0, y: 200 },
     width: 150,
     height: 40,
@@ -61,8 +61,16 @@ const initialNodes: Node[] = [
   {
     id: '2',
     type: 'stepNode',
-    data: { label: '決定輸出格式' },
+    data: { label: '這是步驟Node' },
     position: { x: 0, y: 400 },
+    width: 500,
+    height: 300,
+  },
+  {
+    id: '3',
+    type: 'promptNode',
+    data: { label: 'Prompt' },
+    position: { x: 200, y: 300 },
     width: 500,
     height: 300,
   },
