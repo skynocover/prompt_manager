@@ -1,60 +1,57 @@
 import React from 'react';
 import { HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb } from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useProject } from '../domains/project';
 import { useTeam } from '../domains/team';
 
 interface BreadcrumbItem {
-  href?: string;
+  to?: string;
   title: React.ReactNode;
 }
 
 const BreadCrumb = () => {
-  const { isLoading, team } = useTeam();
+  const { team } = useTeam();
   const { project } = useProject();
+  const navigate = useNavigate();
 
-  const [items, setItems] = React.useState<BreadcrumbItem[]>([
-    {
-      title: (
-        <Link to="/teams">
-          <HomeOutlined />
-        </Link>
-      ),
-    },
-  ]);
+  const [items, setItems] = React.useState<BreadcrumbItem[]>([]);
 
   React.useEffect(() => {
     const breadcrumbItems: BreadcrumbItem[] = [
       {
         title: (
-          <Link to="/teams">
+          <span className="cursor-pointer" onClick={() => navigate('/teams')}>
             <HomeOutlined />
-          </Link>
+          </span>
         ),
       },
     ];
 
     if (team?.id) {
       breadcrumbItems.push({
-        href: `/team/${team.id}`,
-        title: team.teamName,
+        to: `/team/${team.id}`,
+        title: (
+          <span className="cursor-pointer" onClick={() => navigate(`/team/${team.id}`)}>
+            {team.teamName}
+          </span>
+        ),
       });
     }
 
     if (team?.id && project?.id) {
       breadcrumbItems.push({
-        href: `/project/${project.id}`,
-        title: project.projectName || '',
+        to: `/project/${project.id}`,
+        title: (
+          <span className="cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
+            {project.projectName || ''}
+          </span>
+        ),
       });
     }
 
     setItems(breadcrumbItems);
-  }, [team, project]);
-
-  if (isLoading) {
-    return null;
-  }
+  }, [team, project, navigate]);
 
   return <Breadcrumb items={items} />;
 };
