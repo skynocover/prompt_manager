@@ -25,45 +25,35 @@ const BreadCrumb = () => {
   ]);
 
   React.useEffect(() => {
+    const breadcrumbItems: BreadcrumbItem[] = [
+      {
+        title: (
+          <Link to="/teams">
+            <HomeOutlined />
+          </Link>
+        ),
+      },
+    ];
+
     if (team?.id) {
-      setItems([
-        {
-          title: (
-            <Link to="/teams">
-              <HomeOutlined />
-            </Link>
-          ),
-        },
-        {
-          href: `/team/${team.id}`,
-          title: team.teamName,
-        },
-      ]);
+      breadcrumbItems.push({
+        href: `/team/${team.id}`,
+        title: team.teamName,
+      });
     }
 
     if (team?.id && project?.id) {
-      setItems([
-        {
-          title: (
-            <Link to="/teams">
-              <HomeOutlined />
-            </Link>
-          ),
-        },
-        {
-          href: `/team/${team.id}`,
-          title: team.teamName,
-        },
-        {
-          href: `/project/${project.id}`,
-          title: project?.projectName || '',
-        },
-      ]);
+      breadcrumbItems.push({
+        href: `/project/${project.id}`,
+        title: project.projectName || '',
+      });
     }
+
+    setItems(breadcrumbItems);
   }, [team, project]);
 
   if (isLoading) {
-    return <></>;
+    return null;
   }
 
   return <Breadcrumb items={items} />;
