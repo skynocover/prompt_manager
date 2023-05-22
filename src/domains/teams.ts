@@ -62,6 +62,7 @@ export const useTeams = () => {
       return await getAllTeams(user?.email || '');
     },
     staleTime: 60000,
+    enabled: !!user?.email,
   });
 
   const createTeam = useMutation(

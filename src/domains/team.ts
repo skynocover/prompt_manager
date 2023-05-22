@@ -60,6 +60,7 @@ export const useTeam = () => {
       return {};
     },
     staleTime: 60000,
+    enabled: !!appCtx.teamId,
   });
 
   const createProject = useMutation(

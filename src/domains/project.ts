@@ -52,6 +52,7 @@ export const useProject = () => {
       return {};
     },
     staleTime: 60000,
+    enabled: !!appCtx.projectId,
   });
 
   const updateProject = useMutation(
