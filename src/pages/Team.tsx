@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as antd from 'antd';
-import { getAuth } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { ChatCompletionRequestMessage } from 'openai';
 
@@ -13,8 +12,7 @@ import { useProject } from '../domains/project';
 import { useTeam, ProjectFormData } from '../domains/team';
 import ChatSideBar from '../components/ChatSideBar';
 import ChatProfile from '../components/ChatProfile';
-
-const auth = getAuth();
+import { auth } from '../utils/firebase';
 
 const TeamPage = () => {
   const appCtx = React.useContext(AppContext);

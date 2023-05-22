@@ -3,12 +3,10 @@ import React, { useCallback } from 'react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { getAuth } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { useTeams, Team } from '../domains/teams';
-
-const auth = getAuth();
+import { auth } from '../utils/firebase';
 
 const Teams = () => {
   const navigate = useNavigate();

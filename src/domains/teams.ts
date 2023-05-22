@@ -14,12 +14,10 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { getAuth } from 'firebase/auth';
 import { createId } from '@paralleldrive/cuid2';
 
 import { firestore } from '../utils/firebase';
-
-const auth = getAuth();
+import { auth } from '../utils/firebase';
 
 export interface Team {
   id: string;
