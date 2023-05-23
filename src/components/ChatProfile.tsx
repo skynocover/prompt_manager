@@ -1,6 +1,6 @@
 import React from 'react';
 import * as antd from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 import { AppContext } from '../AppContext';
@@ -9,6 +9,7 @@ import { useProject, Project } from '../domains/project';
 
 const ChatProfile = () => {
   const appCtx = React.useContext(AppContext);
+  const navigate = useNavigate();
 
   const { project } = useProject();
   const { delProject } = useTeam();
@@ -37,8 +38,8 @@ const ChatProfile = () => {
           <div className="flex flex-col">
             <div className="flex items-center space-x-2">
               <div className="py-4 text-xl font-semibold">{project.projectName}</div>
-              <antd.Button type="primary">
-                <Link to={'/project/' + project.id}>Edit</Link>
+              <antd.Button type="primary" onClick={() => navigate(`chat`)}>
+                Edit Chat
               </antd.Button>
 
               <antd.Button type="ghost" onClick={() => deletePj(project)}>
@@ -46,7 +47,12 @@ const ChatProfile = () => {
               </antd.Button>
             </div>
             <div className="my-2">{project.projectDescription}</div>
-            <div className="font-light">system: {project.system}</div>
+            <div className="p-2 font-light rounded-md bg-slate-300">
+              <antd.Button type="primary" onClick={() => navigate(`system`)}>
+                Edit System
+              </antd.Button>
+              <p>system: {project.system}</p>
+            </div>
           </div>
         )}
       </div>

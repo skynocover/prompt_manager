@@ -22,6 +22,7 @@ import Teams from './pages/Teams.tsx';
 import Login from './pages/Login.tsx';
 import Team from './pages/Team.tsx';
 import Project from './pages/Project.tsx';
+import { SystemPage } from './pages/System.tsx';
 import { FlowProvider } from './components/FlowContext.tsx';
 
 // Create a client
@@ -36,7 +37,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <Routes>
               <Route path="/teams" Component={Teams} />
               <Route path="/team/:teamId" Component={Team} />
-              <Route path="/project/:projectId" Component={Project} />
+              <Route path="/team/:teamId/chat" Component={Project} />
+              <Route path="/team/:teamId/system" Component={SystemPage} />
               <Route path="/login" Component={Login} />
               <Route path="/" Component={App} />
             </Routes>

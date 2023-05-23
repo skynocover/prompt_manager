@@ -43,7 +43,7 @@ const BreadCrumb = () => {
       breadcrumbItems.push({
         to: `/project/${project.id}`,
         title: (
-          <span className="cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
+          <span className="cursor-pointer" onClick={() => navigate(`/team/${team.id}/chat`)}>
             {project.projectName || ''}
           </span>
         ),
