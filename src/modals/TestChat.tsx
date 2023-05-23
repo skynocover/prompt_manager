@@ -8,9 +8,10 @@ import { useProject } from '../domains/project';
 interface ProjectModalProps {
   open: boolean;
   close: () => void;
+  system?: string;
 }
 
-export const TestChat = () => {
+export const TestChat = ({ system }: { system?: string }) => {
   const [openChat, setOpenChat] = React.useState(false);
 
   return (
@@ -18,12 +19,12 @@ export const TestChat = () => {
       <Button type="primary" onClick={() => setOpenChat(true)}>
         Test Chat
       </Button>
-      <ChatModal open={openChat} close={() => setOpenChat(false)} />
+      <ChatModal system={system} open={openChat} close={() => setOpenChat(false)} />
     </>
   );
 };
 
-const ChatModal: React.FC<ProjectModalProps> = ({ open, close }) => {
+const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
   const [chatLoading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
 
@@ -35,6 +36,7 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close }) => {
       setMessages([...messages, { role: 'user', content: message }]);
       const resp = await sendMessages.mutateAsync({
         messages: [...messages, { role: 'user', content: message }],
+        system,
       });
       if (resp) {
         setMessages([...messages, { role: 'user', content: message }, resp]);
@@ -44,6 +46,11 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close }) => {
     }
     setLoading(false);
   };
+  React.useEffect(() => {
+    if (!open) {
+      setMessages([]);
+    }
+  }, [open]);
 
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null}>

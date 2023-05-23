@@ -16,6 +16,7 @@ export interface Project {
   model?: string;
   system?: string;
   messages?: ChatCompletionRequestMessage[];
+  systemFlow?: any;
 }
 
 export const useProject = () => {
@@ -33,7 +34,8 @@ export const useProject = () => {
       const docRef = doc(firestore, 'teams', appCtx.teamId, 'projects', appCtx.projectId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { projectName, projectDescription, apiKey, model, system, messages } = docSnap.data();
+        const { projectName, projectDescription, apiKey, model, system, messages, systemFlow } =
+          docSnap.data();
 
         const configuration = new Configuration({ apiKey: apiKey || '' });
         const openai = new OpenAIApi(configuration);
@@ -47,6 +49,7 @@ export const useProject = () => {
           model,
           system,
           messages,
+          systemFlow,
         };
       }
       return {};
@@ -63,6 +66,7 @@ export const useProject = () => {
       model,
       system,
       messages,
+      systemFlow,
     }: {
       projectName?: string;
       projectDescription?: string;
@@ -70,6 +74,7 @@ export const useProject = () => {
       model?: string;
       system?: string;
       messages?: ChatCompletionRequestMessage[];
+      systemFlow?: any;
     }) => {
       if (!appCtx.teamId || !appCtx.projectId) return;
       await updateDoc(doc(firestore, 'teams', appCtx.teamId, 'projects', appCtx.projectId), {
@@ -81,6 +86,7 @@ export const useProject = () => {
         model,
         system,
         messages,
+        systemFlow,
       });
     },
     {

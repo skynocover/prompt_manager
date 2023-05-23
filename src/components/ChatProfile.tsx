@@ -48,10 +48,13 @@ const ChatProfile = () => {
             </div>
             <div className="my-2">{project.projectDescription}</div>
             <div className="p-2 font-light rounded-md bg-slate-300">
-              <antd.Button type="primary" onClick={() => navigate(`system`)}>
-                Edit System
-              </antd.Button>
-              <p>system: {project.system}</p>
+              <div className="flex items-center justify-between">
+                <p className="font-bold">system:</p>
+                <antd.Button type="primary" onClick={() => navigate(`system`)}>
+                  Edit System
+                </antd.Button>
+              </div>
+              <antd.Input.TextArea rows={6} value={project.system} className="w-full mt-2" />
             </div>
           </div>
         )}

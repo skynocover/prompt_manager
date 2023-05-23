@@ -12,18 +12,18 @@ import {
   Project,
   NodeChange,
   EdgeChange,
+  Viewport,
+  useViewport,
 } from 'reactflow';
 
 interface FlowContextProps {
   nodes: Node<any, string | undefined>[];
   setNodes: React.Dispatch<React.SetStateAction<Node<any, string | undefined>[]>>;
   onNodesChange: any;
-  //   onNodesChange: OnChange<NodeChange>;
 
   edges: Edge<any>[];
   setEdges: React.Dispatch<React.SetStateAction<Edge<any>[]>>;
   onEdgesChange: any;
-  //   onEdgesChange: OnChange<EdgeChange>;
 
   getViewport: GetViewport;
   setViewport: SetViewport;
@@ -44,7 +44,7 @@ interface AppProviderProps {
 const initialNodes: Node[] = [
   {
     id: '0',
-    type: 'systemNode',
+    type: 'input',
     data: { label: '輸入' },
     position: { x: 0, y: 50 },
     width: 150,
@@ -57,22 +57,6 @@ const initialNodes: Node[] = [
     position: { x: 0, y: 200 },
     width: 150,
     height: 40,
-  },
-  {
-    id: '2',
-    type: 'stepNode',
-    data: { label: '這是步驟Node' },
-    position: { x: 0, y: 400 },
-    width: 500,
-    height: 300,
-  },
-  {
-    id: '3',
-    type: 'promptNode',
-    data: { label: 'Prompt' },
-    position: { x: 200, y: 300 },
-    width: 500,
-    height: 300,
   },
 ];
 

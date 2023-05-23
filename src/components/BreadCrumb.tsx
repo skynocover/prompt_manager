@@ -6,11 +6,10 @@ import { useProject } from '../domains/project';
 import { useTeam } from '../domains/team';
 
 interface BreadcrumbItem {
-  to?: string;
   title: React.ReactNode;
 }
 
-const BreadCrumb = () => {
+const BreadCrumb = ({ additionalItems }: { additionalItems?: BreadcrumbItem[] }) => {
   const { team } = useTeam();
   const { project } = useProject();
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ const BreadCrumb = () => {
 
     if (team?.id) {
       breadcrumbItems.push({
-        to: `/team/${team.id}`,
         title: (
           <span className="cursor-pointer" onClick={() => navigate(`/team/${team.id}`)}>
             {team.teamName}
@@ -41,17 +39,22 @@ const BreadCrumb = () => {
 
     if (team?.id && project?.id) {
       breadcrumbItems.push({
-        to: `/project/${project.id}`,
         title: (
-          <span className="cursor-pointer" onClick={() => navigate(`/team/${team.id}/chat`)}>
+          <span className="cursor-pointer" onClick={() => navigate(`/team/${team.id}`)}>
             {project.projectName || ''}
           </span>
         ),
       });
     }
 
+    if (additionalItems) {
+      additionalItems.map((item) => {
+        breadcrumbItems.push(item);
+      });
+    }
+
     setItems(breadcrumbItems);
-  }, [team, project, navigate]);
+  }, [team, project, navigate, additionalItems]);
 
   return <Breadcrumb items={items} />;
 };

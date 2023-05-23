@@ -1,25 +1,58 @@
 import React from 'react';
+import { Node, Edge, ReactFlowProvider } from 'reactflow';
+
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
 import ProjectSetting, { ProjectData } from '../components/ProjectSetting';
 import { useProject } from '../domains/project';
 import { TestChat } from '../modals/TestChat';
-import { FlowContext } from '../components/FlowContext';
+import { FlowProvider, FlowContext } from '../components/FlowContext';
 
 import { findNodePath } from '../utils/findNodePath';
 import { FlowToolBox, Tool } from '../components/FlowToolBox';
 
-const ProjectPage = () => {
+const additionalItems = [{ title: <span className="cursor-pointer">project</span> }];
+
+const initialNodes = [
+  {
+    id: '0',
+    type: 'systemNode',
+    data: { label: '輸入' },
+    position: { x: 0, y: 50 },
+    width: 150,
+    height: 40,
+  },
+  {
+    id: '1',
+    type: 'output',
+    data: { label: '輸出' },
+    position: { x: 0, y: 200 },
+    width: 150,
+    height: 40,
+  },
+  {
+    id: '2',
+    type: 'stepNode',
+    data: { label: '這是步驟Node' },
+    position: { x: 0, y: 400 },
+    width: 500,
+    height: 300,
+  },
+  {
+    id: '3',
+    type: 'promptNode',
+    data: { label: 'Prompt' },
+    position: { x: 200, y: 300 },
+    width: 500,
+    height: 300,
+  },
+];
+
+const Project = () => {
   const flowContext = React.useContext(FlowContext);
   const { updateProject, project } = useProject();
 
   const onSave = async (projectData: ProjectData) => {
-    // const flow = flowContext.rfInstance?.toObject();
-    // if (flow) {
-    //   const path = findNodePath(flow);
-    //   console.log({ path });
-    // }
-
     if (project) {
       await updateProject.mutateAsync({
         projectName: projectData.projectName,
@@ -44,7 +77,7 @@ const ProjectPage = () => {
   return (
     <>
       <div className="fixed left-0 z-20 flex justify-between p-2 bg-white">
-        <BreadCrumb />
+        <BreadCrumb additionalItems={additionalItems} />
       </div>
       <>
         <div className="fixed right-0 z-20 p-3 -translate-y-1/2 bg-white rounded-md top-1/2">
@@ -62,9 +95,17 @@ const ProjectPage = () => {
         </div>
       </>
       <FlowToolBox tools={tools} />
-      <Flow />
+      <Flow initialNodes={initialNodes} />
     </>
   );
 };
 
-export default ProjectPage;
+export const ProjectPage = () => {
+  return (
+    <ReactFlowProvider>
+      <FlowProvider>
+        <Project />
+      </FlowProvider>
+    </ReactFlowProvider>
+  );
+};
