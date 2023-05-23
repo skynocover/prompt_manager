@@ -1,5 +1,5 @@
 import React from 'react';
-import { Node, Edge, ReactFlowProvider } from 'reactflow';
+import { ReactFlowProvider } from 'reactflow';
 
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
@@ -8,64 +8,75 @@ import { useProject } from '../domains/project';
 import { TestChat } from '../modals/TestChat';
 import { FlowProvider, FlowContext } from '../components/FlowContext';
 
-import { findNodePath } from '../utils/findNodePath';
 import { FlowToolBox, Tool } from '../components/FlowToolBox';
 
 const additionalItems = [{ title: <span className="cursor-pointer">project</span> }];
 
 const initialNodes = [
   {
-    id: '0',
-    type: 'systemNode',
-    data: { label: '輸入' },
-    position: { x: 0, y: 50 },
     width: 150,
     height: 40,
+    id: '0',
+    type: 'input',
+    data: { label: '輸入' },
+    position: { x: 0, y: 50 },
+    positionAbsolute: { x: 0, y: 50 },
   },
   {
+    width: 500,
+    height: 300,
+    id: '2',
+    type: 'stepNode',
+    data: { content: '這是步驟Node' },
+    position: { x: -27, y: 125 },
+    positionAbsolute: { x: -27, y: 125 },
+  },
+  {
+    width: 222,
+    height: 120,
+    id: '3',
+    data: { content: '只使用繁體中文回應' },
+    position: { x: -35, y: 328 },
+    type: 'promptNode',
+    positionAbsolute: { x: -35, y: 328 },
+  },
+  {
+    width: 150,
+    height: 40,
     id: '1',
     type: 'output',
     data: { label: '輸出' },
-    position: { x: 0, y: 200 },
-    width: 150,
-    height: 40,
-  },
-  {
-    id: '2',
-    type: 'stepNode',
-    data: { label: '這是步驟Node' },
-    position: { x: 0, y: 400 },
-    width: 500,
-    height: 300,
-  },
-  {
-    id: '3',
-    type: 'promptNode',
-    data: { label: 'Prompt' },
-    position: { x: 200, y: 300 },
-    width: 500,
-    height: 300,
+    position: { x: 0, y: 488 },
+    positionAbsolute: { x: 0, y: 488 },
   },
 ];
+
+const initialEdges = [
+  { source: '0', target: '2', id: '0' },
+  { source: '2', target: '3', id: '1' },
+  { source: '3', target: '1', id: '2' },
+];
+
+const initialViewPort = { x: 768.3185483870968, y: 110.25403225806451, zoom: 1.3024193548387097 };
 
 const Project = () => {
   const flowContext = React.useContext(FlowContext);
   const { updateProject, project } = useProject();
 
   const onSave = async (projectData: ProjectData) => {
+    const flow = flowContext.rfInstance?.toObject();
     if (project) {
       await updateProject.mutateAsync({
         projectName: projectData.projectName,
         projectDescription: projectData.projectDescription,
         apiKey: projectData.openAIKey,
         model: projectData.model,
-        system: projectData.system,
+        chatFlow: flow,
       });
     }
   };
 
   const tools: Tool[] = [
-    { title: 'Node', type: 'default' },
     { title: 'Step Node', type: 'stepNode' },
     { title: 'Prompt Node', type: 'promptNode' },
     { title: 'Detail', type: 'promptNode', content: '回答時盡量詳細' },
@@ -95,7 +106,11 @@ const Project = () => {
         </div>
       </>
       <FlowToolBox tools={tools} />
-      <Flow initialNodes={initialNodes} />
+      <Flow
+        initialNodes={project?.chatFlow?.nodes || initialNodes}
+        initialEdges={project?.chatFlow?.edges || initialEdges}
+        initialViewport={project?.chatFlow?.viewport || initialViewPort}
+      />
     </>
   );
 };

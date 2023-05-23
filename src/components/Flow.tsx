@@ -9,10 +9,14 @@ import ReactFlow, {
   Connection,
   Background,
   OnConnectStartParams,
+  getIncomers,
+  getOutgoers,
+  getConnectedEdges,
 } from 'reactflow';
 
 import { FlowContext } from '../components/FlowContext';
 import { nodeTypes } from './NodeTypes';
+import Swal from 'sweetalert2';
 
 const getNewNode = (position: XYPosition, type = 'default', content?: string): Node => {
   const id = `${+new Date()}`;
@@ -143,6 +147,45 @@ const Flow = ({
     [rfInstance, setNodes],
   );
 
+  const [restoreNode, setRestoreNode] = React.useState<{ node: Node; edge?: Edge }>();
+  React.useEffect(() => {
+    if (restoreNode) {
+      setNodes([...nodes, restoreNode.node]);
+      restoreNode.edge && setEdges([...edges, restoreNode.edge]);
+    }
+  }, [restoreNode]);
+
+  const onNodesDelete = useCallback(
+    (deleted: Node[]) => {
+      if (deleted.some((node) => node.id === '1' || node.id === '0')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: '輸入與輸出不能刪除',
+        });
+        const connectedEdges = getConnectedEdges([deleted[0]], edges);
+        setRestoreNode({ node: deleted[0], edge: connectedEdges[0] });
+      } else {
+        setEdges(
+          deleted.reduce((acc, node) => {
+            const incomers = getIncomers(node, nodes, edges);
+            const outgoers = getOutgoers(node, nodes, edges);
+            const connectedEdges = getConnectedEdges([node], edges);
+
+            const remainingEdges = acc.filter((edge) => !connectedEdges.includes(edge));
+
+            const createdEdges = incomers.flatMap(({ id: source }) =>
+              outgoers.map(({ id: target }) => ({ id: `${source}->${target}`, source, target })),
+            );
+
+            return [...remainingEdges, ...createdEdges];
+          }, edges),
+        );
+      }
+    },
+    [nodes, edges],
+  );
+
   return (
     <div className="flex h-screen bg-slate-800" ref={reactFlowWrapper}>
       <ReactFlow
@@ -151,6 +194,7 @@ const Flow = ({
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodesDelete={onNodesDelete}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}

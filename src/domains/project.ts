@@ -1,10 +1,10 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppContext } from '../AppContext';
-
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ReactFlowJsonObject } from 'reactflow';
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from 'openai';
 
+import { AppContext } from '../AppContext';
 import { firestore } from '../utils/firebase';
 
 export interface Project {
@@ -16,7 +16,8 @@ export interface Project {
   model?: string;
   system?: string;
   messages?: ChatCompletionRequestMessage[];
-  systemFlow?: any;
+  systemFlow?: ReactFlowJsonObject;
+  chatFlow?: ReactFlowJsonObject;
 }
 
 export const useProject = () => {
@@ -34,8 +35,16 @@ export const useProject = () => {
       const docRef = doc(firestore, 'teams', appCtx.teamId, 'projects', appCtx.projectId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { projectName, projectDescription, apiKey, model, system, messages, systemFlow } =
-          docSnap.data();
+        const {
+          projectName,
+          projectDescription,
+          apiKey,
+          model,
+          system,
+          messages,
+          systemFlow,
+          chatFlow,
+        } = docSnap.data();
 
         const configuration = new Configuration({ apiKey: apiKey || '' });
         const openai = new OpenAIApi(configuration);
@@ -50,6 +59,7 @@ export const useProject = () => {
           system,
           messages,
           systemFlow,
+          chatFlow,
         };
       }
       return {};
@@ -67,15 +77,8 @@ export const useProject = () => {
       system,
       messages,
       systemFlow,
-    }: {
-      projectName?: string;
-      projectDescription?: string;
-      apiKey?: string;
-      model?: string;
-      system?: string;
-      messages?: ChatCompletionRequestMessage[];
-      systemFlow?: any;
-    }) => {
+      chatFlow,
+    }: Project) => {
       if (!appCtx.teamId || !appCtx.projectId) return;
       await updateDoc(doc(firestore, 'teams', appCtx.teamId, 'projects', appCtx.projectId), {
         ...project,
@@ -87,6 +90,7 @@ export const useProject = () => {
         system,
         messages,
         systemFlow,
+        chatFlow,
       });
     },
     {

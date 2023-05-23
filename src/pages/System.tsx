@@ -18,8 +18,8 @@ const initialNodes = [
     id: '0',
     type: 'input',
     data: { label: '輸入' },
-    position: { x: 36.76225098180909, y: 134.02800224413508 },
-    positionAbsolute: { x: 36.76225098180909, y: 134.02800224413508 },
+    position: { x: 36, y: 134 },
+    positionAbsolute: { x: 36, y: 134 },
     selected: true,
     dragging: false,
   },
@@ -29,10 +29,10 @@ const initialNodes = [
     id: '1',
     type: 'output',
     data: { label: '輸出' },
-    position: { x: 36.79485693659714, y: 434.470583220472 },
+    position: { x: 36, y: 434 },
     selected: false,
     dragging: false,
-    positionAbsolute: { x: 36.79485693659714, y: 434.470583220472 },
+    positionAbsolute: { x: 36, y: 434 },
   },
   {
     width: 222,
@@ -40,10 +40,10 @@ const initialNodes = [
     id: '3',
     type: 'promptNode',
     data: { label: 'Prompt', content: '回答時盡量詳細' },
-    position: { x: 0.6026751583933105, y: 245.99366254619838 },
+    position: { x: 0, y: 245 },
     selected: false,
     dragging: false,
-    positionAbsolute: { x: 0.6026751583933105, y: 245.99366254619838 },
+    positionAbsolute: { x: 0, y: 245 },
   },
 ];
 
@@ -122,9 +122,9 @@ const System = () => {
       </div>
       <FlowToolBox tools={tools} />
       <Flow
-        initialNodes={project?.systemFlow.nodes || initialNodes}
-        initialEdges={project?.systemFlow.edges || initialEdges}
-        initialViewport={project?.systemFlow.viewport || initialViewPort}
+        initialNodes={project?.systemFlow?.nodes || initialNodes}
+        initialEdges={project?.systemFlow?.edges || initialEdges}
+        initialViewport={project?.systemFlow?.viewport || initialViewPort}
       />
     </>
   );
