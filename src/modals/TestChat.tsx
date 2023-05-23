@@ -46,15 +46,13 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
     }
     setLoading(false);
   };
-  React.useEffect(() => {
-    if (!open) {
-      setMessages([]);
-    }
-  }, [open]);
 
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null}>
       <ChatsAndMessage loading={chatLoading} messages={messages} onSendMessage={onSendMessage} />
+      <Button type="primary" onClick={() => setMessages([])}>
+        Clear Chat
+      </Button>
     </Modal>
   );
 };
