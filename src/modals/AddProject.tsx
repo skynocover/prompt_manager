@@ -62,9 +62,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ open, setOpen, onOk, onCanc
         <Form.Item name="model" label="模型">
           <Input />
         </Form.Item>
-        <Form.Item name="system" label="系統">
-          <Input />
-        </Form.Item>
       </Form>
     </Modal>
   );

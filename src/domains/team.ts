@@ -18,7 +18,6 @@ export interface ProjectFormData {
   projectDescription?: string;
   openAIKey?: string;
   model?: string;
-  system?: string;
 }
 
 export const getAllProjects = async (teamId: string): Promise<IProjectInfo[]> => {
