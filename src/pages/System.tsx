@@ -83,7 +83,6 @@ const System = () => {
   }, [flowContext.rfInstance]);
 
   React.useEffect(() => {
-    console.log('aaaa');
     if (flowContext.rfInstance) {
       makeSystem();
     }
@@ -116,7 +115,7 @@ const System = () => {
             <Button type="primary" onClick={makeSystem}>
               生成
             </Button>
-            <TestChat system={project?.system || ''} />
+            <TestChat system={system ? system : project?.system || ''} />
           </div>
         </div>
       </div>

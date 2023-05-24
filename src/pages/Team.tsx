@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as antd from 'antd';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { ChatCompletionRequestMessage } from 'openai';
+import { HumanChatMessage, BaseChatMessage } from 'langchain/schema';
 
 import { AppContext } from '../AppContext';
 import ChatsAndMessage from '../components/ChatsAndMessage';
@@ -25,7 +25,7 @@ const TeamPage = () => {
   const { sendMessages, project, updateProject } = useProject();
 
   const [chatLoading, setLoading] = React.useState(false);
-  const [messages, setMessages] = React.useState<ChatCompletionRequestMessage[]>([]);
+  const [messages, setMessages] = React.useState<BaseChatMessage[]>([]);
 
   React.useEffect(() => {
     if (project?.messages) {
@@ -56,12 +56,12 @@ const TeamPage = () => {
   const onSendMessage = async (message: string) => {
     setLoading(true);
     try {
-      setMessages([...messages, { role: 'user', content: message }]);
+      setMessages([...messages, new HumanChatMessage(message)]);
       const resp = await sendMessages.mutateAsync({
-        messages: [...messages, { role: 'user', content: message }],
+        messages: [...messages, new HumanChatMessage(message)],
       });
       if (resp) {
-        setMessages([...messages, { role: 'user', content: message }, resp]);
+        setMessages([...messages, new HumanChatMessage(message), resp]);
       }
     } catch (error) {
       console.log(error);
@@ -99,6 +99,7 @@ const TeamPage = () => {
                     loading={chatLoading}
                     messages={messages}
                     onSendMessage={onSendMessage}
+                    clear={() => setMessages([])}
                   />
                 )}
               </div>

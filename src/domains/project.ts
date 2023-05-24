@@ -2,7 +2,8 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ReactFlowJsonObject } from 'reactflow';
-import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from 'openai';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { SystemChatMessage, BaseChatMessage } from 'langchain/schema';
 
 import { AppContext } from '../AppContext';
 import { firestore } from '../utils/firebase';
@@ -11,11 +12,11 @@ export interface Project {
   id?: string;
   projectName?: string;
   projectDescription?: string;
-  openai?: OpenAIApi;
+  openai?: ChatOpenAI;
   apiKey?: string;
   model?: string;
   system?: string;
-  messages?: ChatCompletionRequestMessage[];
+  messages?: BaseChatMessage[];
   systemFlow?: ReactFlowJsonObject;
   chatFlow?: ReactFlowJsonObject;
 }
@@ -46,8 +47,12 @@ export const useProject = () => {
           chatFlow,
         } = docSnap.data();
 
-        const configuration = new Configuration({ apiKey: apiKey || '' });
-        const openai = new OpenAIApi(configuration);
+        const openai = new ChatOpenAI({
+          temperature: 0,
+          openAIApiKey: apiKey || '',
+          modelName: model || 'gpt-3.5-turbo',
+          streaming: true,
+        });
 
         return {
           id: appCtx.projectId,
@@ -101,22 +106,29 @@ export const useProject = () => {
   );
 
   const sendMessages = useMutation(
-    async ({ messages, system }: { messages: ChatCompletionRequestMessage[]; system?: string }) => {
+    async ({
+      messages,
+      system,
+      cb,
+    }: {
+      messages: BaseChatMessage[];
+      system?: string;
+      cb?: (token: string) => void;
+    }) => {
       if (!project?.openai) return;
 
       if (system) {
-        messages.unshift({ role: 'system', content: system });
+        messages.unshift(new SystemChatMessage(system));
       } else if (project.system) {
-        messages.unshift({ role: 'system', content: project.system });
+        messages.unshift(new SystemChatMessage(project.system));
       }
-
-      const { data } = await project.openai.createChatCompletion({
-        model: project.model || 'gpt-3.5-turbo',
-        messages,
-      });
-      if (data.choices[0].message) {
-        return data.choices[0].message;
-      }
+      return await project.openai.call(messages, undefined, [
+        {
+          handleLLMNewToken(token: string) {
+            cb && cb(token);
+          },
+        },
+      ]);
     },
   );
 
