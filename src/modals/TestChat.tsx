@@ -55,12 +55,14 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
 
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null}>
-      <ChatsAndMessage
-        loading={chatLoading}
-        messages={messages}
-        onSendMessage={onSendMessage}
-        clear={() => setMessages([])}
-      />
+      <div className="h-[750px] flex flex-col">
+        <ChatsAndMessage
+          loading={chatLoading}
+          messages={messages}
+          onSendMessage={onSendMessage}
+          clear={() => setMessages([])}
+        />
+      </div>
     </Modal>
   );
 };

@@ -31,7 +31,7 @@ const ChatsAndMessage = ({
 
   return (
     <>
-      <div className="flex flex-col mt-5">
+      <div className="flex flex-col flex-1 mt-5 overflow-scroll">
         {messages.map((m, index) => {
           if (m._getType() === 'human') {
             return (

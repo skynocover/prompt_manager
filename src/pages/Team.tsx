@@ -94,7 +94,7 @@ const TeamPage = () => {
             <div className="flex flex-row justify-between bg-white">
               <ChatSideBar />
 
-              <div className="flex flex-col justify-between w-full px-5">
+              <div className="flex flex-col justify-between w-full px-5 h-[800px]">
                 <div className="flex justify-end">
                   <antd.Button disabled={chatLoading} type="primary" onClick={saveChat}>
                     保存對話
