@@ -20,7 +20,7 @@ import Swal from 'sweetalert2';
 
 const getNewNode = (position: XYPosition, type = 'default', content?: string): Node => {
   const id = `${+new Date()}`;
-  return { id, data: { content, label: `Node ${id}` }, position, type };
+  return { id, data: { content }, position, type };
 };
 
 const fitViewOptions = { padding: 3 };
@@ -132,7 +132,7 @@ const Flow = ({
 
       // eslint-disable-next-line no-unsafe-optional-chaining
       const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+      const type = event.dataTransfer.getData('application/reactflow_type');
       const content = event.dataTransfer.getData('application/reactflow_content');
 
       if (typeof type === 'undefined' || !type || !reactFlowBounds || !rfInstance) return;

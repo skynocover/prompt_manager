@@ -6,7 +6,7 @@ export interface Tool {
 
 export const FlowToolBox = ({ tools }: { tools: Tool[] }) => {
   const onDragStart = (event: React.DragEvent<HTMLDivElement>, { type, content }: Tool) => {
-    event.dataTransfer.setData('application/reactflow', type);
+    event.dataTransfer.setData('application/reactflow_type', type);
     if (content) {
       event.dataTransfer.setData('application/reactflow_content', content);
     }

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Input, Button } from 'antd';
 import { ReactFlowProvider } from 'reactflow';
+import { SystemMessagePromptTemplate, ChatPromptTemplate } from 'langchain/prompts';
 
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
@@ -18,9 +19,9 @@ const initialNodes = [
     id: '0',
     type: 'input',
     data: { label: '輸入' },
-    position: { x: 36, y: 134 },
-    positionAbsolute: { x: 36, y: 134 },
-    selected: true,
+    position: { x: 81, y: -37 },
+    positionAbsolute: { x: 81, y: -37 },
+    selected: false,
     dragging: false,
   },
   {
@@ -29,36 +30,73 @@ const initialNodes = [
     id: '1',
     type: 'output',
     data: { label: '輸出' },
-    position: { x: 36, y: 434 },
+    position: { x: 136, y: 721 },
+    positionAbsolute: { x: 136, y: 721 },
     selected: false,
     dragging: false,
-    positionAbsolute: { x: 36, y: 434 },
   },
   {
-    width: 222,
-    height: 120,
+    width: 288,
+    height: 156,
     id: '3',
-    type: 'promptNode',
-    data: { label: 'Prompt', content: '回答時盡量詳細' },
-    position: { x: 0, y: 245 },
+    type: 'variableNode',
+    data: { name: '等級', content: '初學者' },
+    position: { x: 206, y: 262 },
+    positionAbsolute: { x: 206, y: 262 },
     selected: false,
     dragging: false,
-    positionAbsolute: { x: 0, y: 245 },
+  },
+  {
+    width: 217,
+    height: 149,
+    id: '4',
+    type: 'promptNode',
+    data: { content: '請給我推薦適合{等級}的{主題}' },
+    position: { x: 240, y: 468 },
+    positionAbsolute: { x: 240, y: 468 },
+    selected: false,
+    dragging: false,
+  },
+  {
+    width: 288,
+    height: 156,
+    id: '2',
+    data: { content: '運動', name: '主題' },
+    position: { x: 13, y: 48 },
+    type: 'variableNode',
+    selected: false,
+    positionAbsolute: { x: 13, y: 48 },
+    dragging: false,
+  },
+  {
+    width: 217,
+    height: 149,
+    id: '6',
+    data: { content: '如何保持{主題}的習慣', label: 'Node 3' },
+    position: { x: -121, y: 377 },
+    type: 'promptNode',
+    selected: false,
+    dragging: false,
+    positionAbsolute: { x: -121, y: 377 },
   },
 ];
 
 const initialEdges = [
-  { source: '0', sourceHandle: null, target: '3', targetHandle: null, id: 'reactflow__edge-0-3' },
-  { source: '3', sourceHandle: null, target: '1', targetHandle: null, id: 'reactflow__edge-3-1' },
+  { source: '4', target: '1', id: '1' },
+  { source: '0', target: '2', id: '2' },
+  { source: '2', target: '3', id: '3' },
+  { source: '3', target: '4', id: '4' },
+  { source: '2', target: '6', id: '6' },
+  { source: '6', target: '1', id: '7' },
 ];
 
-const initialViewPort = { x: 679.2157908041769, y: 101.42390172467725, zoom: 1.5535229620677677 };
+const initialViewPort = { x: 746, y: 94, zoom: 1 };
 
 const additionalItems = [{ title: <span className="cursor-pointer">system</span> }];
 
 const System = () => {
   const flowContext = React.useContext(FlowContext);
-  const { updateProject, project } = useProject();
+  const { updateProject, project, makeSystemByTemplate } = useProject();
 
   const [system, setSystem] = React.useState<string>('');
 
@@ -70,15 +108,35 @@ const System = () => {
     });
   };
 
-  const makeSystem = useCallback(() => {
+  const makeSystem = useCallback(async () => {
     const flow = flowContext.rfInstance?.toObject();
     if (flow) {
+      // TODO: remove
+      console.log({
+        nodes: JSON.stringify(flow.nodes),
+        edges: JSON.stringify(flow.edges),
+        viewport: JSON.stringify(flow.viewport),
+      });
       const paths = findNodePath(flow);
-      const temp = paths.reduce((result, path) => {
-        const contents = path.map((node) => (node.data.content ? node.data.content + '\n' : ''));
-        return result + contents.join('') + '\n';
-      }, '');
-      setSystem(temp);
+      const tempPromise = paths.map(async (path) => {
+        const [prompt, variable] = path.reduce(
+          ([contents, v], node) => {
+            if (node.type === 'promptNode') {
+              return [contents + (node.data.content || ''), v];
+            } else if (node.type === 'variableNode') {
+              v[node.data.name] = node.data.content;
+              return [contents, v];
+            } else {
+              return [contents, v];
+            }
+          },
+          ['', {} as Record<string, unknown>],
+        );
+
+        return makeSystemByTemplate({ prompt, variable });
+      });
+      const temp = await Promise.all(tempPromise);
+      setSystem(temp.join('\n'));
     }
   }, [flowContext.rfInstance]);
 
@@ -95,6 +153,7 @@ const System = () => {
     { title: 'Traditional Chinese', type: 'promptNode', content: '只使用繁體中文回應' },
     { title: 'Example', type: 'promptNode', content: '請舉例說明' },
     { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
+    { title: 'Variable', type: 'variableNode' },
   ];
 
   return (

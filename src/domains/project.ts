@@ -5,6 +5,8 @@ import { ReactFlowJsonObject } from 'reactflow';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage, BaseChatMessage } from 'langchain/schema';
 
+import { SystemMessagePromptTemplate, ChatPromptTemplate } from 'langchain/prompts';
+
 import { AppContext } from '../AppContext';
 import { firestore } from '../utils/firebase';
 
@@ -132,5 +134,19 @@ export const useProject = () => {
     },
   );
 
-  return { isLoading, error, updateProject, sendMessages, project };
+  const makeSystemByTemplate = async ({
+    prompt,
+    variable,
+  }: {
+    prompt: string;
+    variable: Record<string, unknown>;
+  }): Promise<string> => {
+    const translationPrompt = ChatPromptTemplate.fromPromptMessages([
+      SystemMessagePromptTemplate.fromTemplate(prompt),
+    ]);
+
+    return (await translationPrompt.formatPromptValue(variable)).toChatMessages()[0].text;
+  };
+
+  return { isLoading, error, updateProject, sendMessages, project, makeSystemByTemplate };
 };
