@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Button } from 'antd';
 
-import { HumanChatMessage, BaseChatMessage, SystemChatMessage } from 'langchain/schema';
+import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
 import ChatsAndMessage from '../components/ChatsAndMessage';
 import { useProject } from '../domains/project';
 
@@ -26,31 +26,26 @@ export const TestChat = ({ system }: { system?: string }) => {
 const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
   const [chatLoading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<BaseChatMessage[]>([]);
-  const [temp, setTemp] = React.useState('');
 
   const { sendMessages } = useProject();
 
   const onSendMessage = async (message: string) => {
     setLoading(true);
     try {
-      setMessages([...messages, new HumanChatMessage(message), new SystemChatMessage('')]);
-      const resp = await sendMessages.mutateAsync({
+      setMessages([...messages, new HumanChatMessage(message), new AIChatMessage('')]);
+      await sendMessages.mutateAsync({
         messages: [...messages, new HumanChatMessage(message)],
         system,
         cb: (token: string) => {
           setMessages((prevMessages) => {
             const updatedMessages = [...prevMessages];
-            updatedMessages[updatedMessages.length - 1] = new SystemChatMessage(
+            updatedMessages[updatedMessages.length - 1] = new AIChatMessage(
               updatedMessages[updatedMessages.length - 1].text + token,
             );
             return updatedMessages;
           });
-          setTemp((prev) => prev + token);
         },
       });
-      if (resp) {
-        setMessages([...messages, new HumanChatMessage(message), resp]);
-      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -66,7 +61,6 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
         onSendMessage={onSendMessage}
         clear={() => setMessages([])}
       />
-      {temp}
     </Modal>
   );
 };

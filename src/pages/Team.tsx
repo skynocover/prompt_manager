@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as antd from 'antd';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { HumanChatMessage, BaseChatMessage } from 'langchain/schema';
+import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
 
 import { AppContext } from '../AppContext';
 import ChatsAndMessage from '../components/ChatsAndMessage';
@@ -56,13 +56,19 @@ const TeamPage = () => {
   const onSendMessage = async (message: string) => {
     setLoading(true);
     try {
-      setMessages([...messages, new HumanChatMessage(message)]);
-      const resp = await sendMessages.mutateAsync({
+      setMessages([...messages, new HumanChatMessage(message), new AIChatMessage('')]);
+      await sendMessages.mutateAsync({
         messages: [...messages, new HumanChatMessage(message)],
+        cb: (token: string) => {
+          setMessages((prevMessages) => {
+            const updatedMessages = [...prevMessages];
+            updatedMessages[updatedMessages.length - 1] = new AIChatMessage(
+              updatedMessages[updatedMessages.length - 1].text + token,
+            );
+            return updatedMessages;
+          });
+        },
       });
-      if (resp) {
-        setMessages([...messages, new HumanChatMessage(message), resp]);
-      }
     } catch (error) {
       console.log(error);
     }
