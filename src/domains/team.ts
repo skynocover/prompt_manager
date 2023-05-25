@@ -62,6 +62,22 @@ export const useTeam = () => {
     enabled: !!appCtx.teamId,
   });
 
+  const { data: projects } = useQuery({
+    queryKey: ['TeamProjects', appCtx.teamId],
+    queryFn: async () => {
+      if (!appCtx.teamId) return [];
+      const querySnapshot = await getDocs(
+        query(collection(firestore, 'teams', appCtx.teamId, 'projects')),
+      );
+      return querySnapshot.docs.map((doc) => {
+        const { projectName, projectDescription } = doc.data();
+        return { id: doc.id, projectName, projectDescription };
+      });
+    },
+    staleTime: 60000,
+    enabled: !!appCtx.teamId,
+  });
+
   const createProject = useMutation(
     async ({ teamId, projectFormData }: { teamId: string; projectFormData: ProjectFormData }) => {
       const projectId = createId();
@@ -70,7 +86,7 @@ export const useTeam = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['Team', appCtx.teamId] });
+        queryClient.invalidateQueries({ queryKey: ['TeamProjects', appCtx.teamId] });
       },
     },
   );
@@ -81,10 +97,10 @@ export const useTeam = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['Team', appCtx.teamId] });
+        queryClient.invalidateQueries({ queryKey: ['TeamProjects', appCtx.teamId] });
       },
     },
   );
 
-  return { isLoading, error, createProject, delProject, team };
+  return { isLoading, error, createProject, delProject, team, projects };
 };

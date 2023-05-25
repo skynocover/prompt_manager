@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal, Input, Button } from 'antd';
 import { ProjectFormData } from '../domains/team';
-import { useProject, Project } from '../domains/project';
+import { useProject } from '../domains/project';
 
 interface ProjectModalProps {
   open: boolean;
@@ -25,11 +25,20 @@ export const EditProject = () => {
 const ProjectModal: React.FC<ProjectModalProps> = ({ open, setOpen, onCancel }) => {
   const { project, updateProject } = useProject();
   const [editedProjectData, setEditedProjectData] = useState<ProjectFormData>({
-    projectName: project?.projectName || '',
-    projectDescription: project?.projectDescription || '',
-    openAIKey: project?.apiKey || '',
-    model: project?.model || '',
+    projectName: '',
+    projectDescription: '',
+    openAIKey: '',
+    model: '',
   });
+
+  React.useEffect(() => {
+    setEditedProjectData({
+      projectName: project?.projectName || '',
+      projectDescription: project?.projectDescription || '',
+      openAIKey: project?.apiKey || '',
+      model: project?.model || '',
+    });
+  }, [project]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

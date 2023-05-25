@@ -6,7 +6,7 @@ import { useProject } from '../domains/project';
 const ChatSideBar = () => {
   const appCtx = React.useContext(AppContext);
   const [searchText, setSearchText] = React.useState('');
-  const { team } = useTeam();
+  const { projects } = useTeam();
   const { project } = useProject();
   const chooseProject = async (p: IProjectInfo) => {
     appCtx.setProjectId(p.id);
@@ -22,7 +22,7 @@ const ChatSideBar = () => {
           onChange={(e) => setSearchText(e.target.value)}
         />
       </div>
-      {team?.projects
+      {projects
         ?.filter((p) => p.projectName.includes(searchText))
         .map((p) => (
           <div

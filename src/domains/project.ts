@@ -49,12 +49,14 @@ export const useProject = () => {
           chatFlow,
         } = docSnap.data();
 
-        const openai = new ChatOpenAI({
-          temperature: 0,
-          openAIApiKey: apiKey || '',
-          modelName: model || 'gpt-3.5-turbo',
-          streaming: true,
-        });
+        const openai = apiKey
+          ? new ChatOpenAI({
+              temperature: 0,
+              openAIApiKey: apiKey,
+              modelName: model || 'gpt-3.5-turbo',
+              streaming: true,
+            })
+          : undefined;
 
         return {
           id: appCtx.projectId,
@@ -103,6 +105,7 @@ export const useProject = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['Project', appCtx.projectId] });
+        queryClient.invalidateQueries({ queryKey: ['TeamProjects', appCtx.teamId] });
       },
     },
   );
