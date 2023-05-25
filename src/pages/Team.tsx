@@ -96,20 +96,24 @@ const TeamPage = () => {
             </div>
             <div className="flex flex-row justify-between bg-white">
               <ChatSideBar />
-              <div className="flex flex-col justify-between w-full px-5 h-[800px]">
+              <div
+                className={`flex flex-col justify-between w-full px-5 h-[800px] ${
+                  project && project.apiKey ? 'opacity-100' : 'opacity-50 cursor-not-allowed'
+                }`}
+                style={{ pointerEvents: project && project.apiKey ? 'auto' : 'none' }}
+              >
                 <div className="flex justify-end">
                   <antd.Button disabled={chatLoading} type="primary" onClick={saveChat}>
                     保存對話
                   </antd.Button>
                 </div>
-                {project && (
-                  <ChatsAndMessage
-                    loading={chatLoading}
-                    messages={messages}
-                    onSendMessage={onSendMessage}
-                    clear={() => setMessages([])}
-                  />
-                )}
+
+                <ChatsAndMessage
+                  loading={chatLoading}
+                  messages={messages}
+                  onSendMessage={onSendMessage}
+                  clear={() => setMessages([])}
+                />
               </div>
               <div className="w-2/5 px-5 border-l-2">
                 <ChatProfile />
