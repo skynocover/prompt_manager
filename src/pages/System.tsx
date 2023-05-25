@@ -98,6 +98,12 @@ const tools: Tool[] = [
   { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
   { title: 'Variable', type: 'variableNode' },
   { title: 'File', type: 'fileNode' },
+  {
+    title: 'OnlyCode',
+    type: 'promptNode',
+    content:
+      '我想讓你充當算法輸出器。我將輸入算法描述，您將回复算法的Typescript實現。我希望您只在一個唯一的代碼塊內回复代碼，而不是其他任何內容。不要寫解釋。除非我指示您這樣做，否則不要鍵入命令。',
+  },
 ];
 
 const additionalItems = [{ title: <span className="cursor-pointer">system</span> }];

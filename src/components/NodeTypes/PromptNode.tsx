@@ -41,7 +41,7 @@ export const PromptNode = ({ id, data }: NodeProps) => {
   };
 
   return (
-    <div id={id} className="bg-white h-500 w-300">
+    <div id={id} className="bg-white h-500 w-400">
       <div className="flex items-center justify-center p-2 bg-gray-200 h-100">
         <label>Prompt</label>
       </div>
@@ -51,6 +51,7 @@ export const PromptNode = ({ id, data }: NodeProps) => {
           className="rounded-md round"
           value={inputText}
           onChange={handleInputChange}
+          rows={6}
         />
         <div className="flex justify-around">
           <Button className="mt-2" type="primary" onClick={() => handleInsert('{}')}>
