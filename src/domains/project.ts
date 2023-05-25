@@ -3,7 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ReactFlowJsonObject } from 'reactflow';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { SystemChatMessage, BaseChatMessage } from 'langchain/schema';
+import {
+  SystemChatMessage,
+  BaseChatMessage,
+  AIChatMessage,
+  HumanChatMessage,
+} from 'langchain/schema';
 
 import { SystemMessagePromptTemplate, ChatPromptTemplate } from 'langchain/prompts';
 
@@ -22,6 +27,20 @@ export interface Project {
   systemFlow?: ReactFlowJsonObject;
   chatFlow?: ReactFlowJsonObject;
 }
+
+const jsonStringToChatMessages = (jsonString: string): BaseChatMessage[] => {
+  const messages = JSON.parse(jsonString);
+  if (!Array.isArray(messages)) {
+    throw new Error('Invalid input. Expected an array of chat messages.');
+  }
+  return messages.map((message) => {
+    if (message.type === 'human') {
+      return new HumanChatMessage(message.data.content);
+    } else {
+      return new AIChatMessage(message.data.content);
+    }
+  });
+};
 
 export const useProject = () => {
   const appCtx = React.useContext(AppContext);
@@ -66,7 +85,7 @@ export const useProject = () => {
           apiKey,
           model,
           preSystem,
-          messages,
+          messages: messages ? jsonStringToChatMessages(messages) : undefined,
           systemFlow,
           chatFlow,
         };
@@ -97,7 +116,7 @@ export const useProject = () => {
         apiKey,
         model,
         preSystem,
-        messages,
+        messages: JSON.stringify(messages),
         systemFlow,
         chatFlow,
       });
