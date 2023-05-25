@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { Input, Button } from 'antd';
 import { ReactFlowProvider } from 'reactflow';
-import { SystemMessagePromptTemplate, ChatPromptTemplate } from 'langchain/prompts';
 
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
@@ -19,10 +18,8 @@ const initialNodes = [
     id: '0',
     type: 'input',
     data: { label: '輸入' },
-    position: { x: 81, y: -37 },
-    positionAbsolute: { x: 81, y: -37 },
-    selected: false,
-    dragging: false,
+    position: { x: 342, y: -128 },
+    positionAbsolute: { x: 342, y: -128 },
   },
   {
     width: 150,
@@ -30,10 +27,8 @@ const initialNodes = [
     id: '1',
     type: 'output',
     data: { label: '輸出' },
-    position: { x: 136, y: 721 },
-    positionAbsolute: { x: 136, y: 721 },
-    selected: false,
-    dragging: false,
+    position: { x: 406, y: 723 },
+    positionAbsolute: { x: 406, y: 723 },
   },
   {
     width: 288,
@@ -43,8 +38,6 @@ const initialNodes = [
     data: { name: '等級', content: '初學者' },
     position: { x: 206, y: 262 },
     positionAbsolute: { x: 206, y: 262 },
-    selected: false,
-    dragging: false,
   },
   {
     width: 217,
@@ -54,8 +47,6 @@ const initialNodes = [
     data: { content: '請給我推薦適合{等級}的{主題}' },
     position: { x: 240, y: 468 },
     positionAbsolute: { x: 240, y: 468 },
-    selected: false,
-    dragging: false,
   },
   {
     width: 288,
@@ -64,9 +55,7 @@ const initialNodes = [
     data: { content: '運動', name: '主題' },
     position: { x: 13, y: 48 },
     type: 'variableNode',
-    selected: false,
     positionAbsolute: { x: 13, y: 48 },
-    dragging: false,
   },
   {
     width: 217,
@@ -75,9 +64,16 @@ const initialNodes = [
     data: { content: '如何保持{主題}的習慣', label: 'Node 3' },
     position: { x: -121, y: 377 },
     type: 'promptNode',
-    selected: false,
-    dragging: false,
     positionAbsolute: { x: -121, y: 377 },
+  },
+  {
+    width: 217,
+    height: 149,
+    id: '7',
+    data: { content: '只使用{{language}}回應' },
+    position: { x: 536, y: 146 },
+    type: 'promptNode',
+    positionAbsolute: { x: 536, y: 146 },
   },
 ];
 
@@ -88,27 +84,47 @@ const initialEdges = [
   { source: '3', target: '4', id: '4' },
   { source: '2', target: '6', id: '6' },
   { source: '6', target: '1', id: '7' },
+  { source: '0', target: '7', id: '8' },
+  { source: '7', target: '1', id: '9' },
 ];
 
-const initialViewPort = { x: 746, y: 94, zoom: 1 };
+const initialViewPort = { x: 352, y: 204, zoom: 0.92 };
+
+const tools: Tool[] = [
+  { title: 'Prompt Node', type: 'promptNode' },
+  { title: 'Detail', type: 'promptNode', content: '回答時盡量詳細' },
+  { title: 'Code Only', type: 'promptNode', content: '只回應我程式碼的部分' },
+  { title: 'Traditional Chinese', type: 'promptNode', content: '只使用繁體中文回應' },
+  { title: 'Example', type: 'promptNode', content: '請舉例說明' },
+  { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
+  { title: 'Variable', type: 'variableNode' },
+  { title: 'File', type: 'fileNode' },
+];
 
 const additionalItems = [{ title: <span className="cursor-pointer">system</span> }];
+
+interface paramater {
+  name: string;
+  value: string;
+}
 
 const System = () => {
   const flowContext = React.useContext(FlowContext);
   const { updateProject, project, makeSystemByTemplate } = useProject();
 
+  const [preSystem, setPreSystem] = React.useState('');
   const [system, setSystem] = React.useState<string>('');
+  const [parameters, setParameters] = React.useState<paramater[]>([]);
 
   const onSave = async () => {
     const flow = flowContext.rfInstance?.toObject();
     await updateProject.mutateAsync({
-      system,
+      system: preSystem,
       systemFlow: flow,
     });
   };
 
-  const makeSystem = useCallback(async () => {
+  const makePreSystem = useCallback(async () => {
     const flow = flowContext.rfInstance?.toObject();
     if (flow) {
       // TODO: remove
@@ -120,12 +136,21 @@ const System = () => {
       const paths = findNodePath(flow);
       const tempPromise = paths.map(async (path) => {
         const [prompt, variable] = path.reduce(
+          // contents 內文, v 變數
           ([contents, v], node) => {
             if (node.type === 'promptNode') {
               return [contents + (node.data.content || ''), v];
             } else if (node.type === 'variableNode') {
               v[node.data.name] = node.data.content;
               return [contents, v];
+            } else if (node.type === 'fileNode') {
+              return [
+                contents +
+                  (node.data.prefix || '') +
+                  (node.data.content || '') +
+                  (node.data.suffix || ''),
+                v,
+              ];
             } else {
               return [contents, v];
             }
@@ -136,25 +161,53 @@ const System = () => {
         return makeSystemByTemplate({ prompt, variable });
       });
       const temp = await Promise.all(tempPromise);
-      setSystem(temp.join('\n'));
+      setPreSystem(temp.join('\n'));
     }
-  }, [flowContext.rfInstance]);
+  }, [flowContext.rfInstance, makeSystemByTemplate]);
 
   React.useEffect(() => {
     if (flowContext.rfInstance) {
-      makeSystem();
+      makePreSystem();
     }
-  }, [flowContext.rfInstance, makeSystem]);
+  }, [flowContext.rfInstance, makePreSystem]);
 
-  const tools: Tool[] = [
-    { title: 'Prompt Node', type: 'promptNode' },
-    { title: 'Detail', type: 'promptNode', content: '回答時盡量詳細' },
-    { title: 'Code Only', type: 'promptNode', content: '只回應我程式碼的部分' },
-    { title: 'Traditional Chinese', type: 'promptNode', content: '只使用繁體中文回應' },
-    { title: 'Example', type: 'promptNode', content: '請舉例說明' },
-    { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
-    { title: 'Variable', type: 'variableNode' },
-  ];
+  function extractSubstrings(s: string): string[] {
+    const regex = /{([^}]+)}/g;
+    const result: string[] = [];
+    let match;
+    while ((match = regex.exec(s)) !== null) {
+      result.push(match[1]);
+    }
+    return result;
+  }
+
+  React.useEffect(() => {
+    const result = extractSubstrings(preSystem);
+    setParameters(
+      result.map((r) => {
+        return { name: r, value: '' };
+      }),
+    );
+  }, [preSystem]);
+
+  React.useEffect(() => {
+    // 初始化 temp 物件
+    const temp: { [key: string]: string } = {};
+
+    // 遍歷 Parameter 陣列
+    parameters.forEach((param) => {
+      temp[param.name] = param.value;
+    });
+    makeSystemByTemplate({ prompt: preSystem, variable: temp }).then((v) => setSystem(v));
+  }, [preSystem, parameters, makeSystemByTemplate]);
+
+  const handleParameterChange = (index: number, value: string) => {
+    setParameters((prev) => {
+      const temp = [...prev];
+      temp[index] = { name: temp[index].name, value };
+      return temp;
+    });
+  };
 
   return (
     <>
@@ -169,12 +222,32 @@ const System = () => {
               保存
             </Button>
           </div>
-          <Input.TextArea rows={6} value={system} className="w-full mb-2" />
-          <div className="flex justify-between">
-            <Button type="primary" onClick={makeSystem}>
+          <div className="flex justify-end">
+            <Button type="primary" onClick={makePreSystem}>
               生成
             </Button>
-            <TestChat system={system ? system : project?.system || ''} />
+          </div>
+          <Input.TextArea rows={6} value={preSystem} className="w-full mb-2" />
+
+          <div className="flex items-center font-bold">參數</div>
+          <div className="">
+            {parameters.map((para, index) => (
+              <div className="flex items-center mt-2 space-x-2 border-black border-3">
+                <label htmlFor="variableName" className="text-gray-700">
+                  {para.name}:
+                </label>
+                <Input
+                  value={para.value}
+                  onChange={(e) => handleParameterChange(index, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-2">
+            <Input.TextArea rows={6} value={system} className="w-full mb-2" />
+            <div className="flex justify-end">
+              <TestChat system={system ? system : project?.system || ''} />
+            </div>
           </div>
         </div>
       </div>

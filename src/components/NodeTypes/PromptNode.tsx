@@ -28,13 +28,13 @@ export const PromptNode = ({ id, data }: NodeProps) => {
     }
   }, [data]);
 
-  const handleInsert = () => {
+  const handleInsert = (insert: string) => {
     const input = inputRef.current;
     if (input) {
       input.select;
       const start = input.selectionStart;
       const end = input.selectionEnd;
-      setInputText(inputText.slice(0, start) + '{}' + inputText.slice(end));
+      setInputText(inputText.slice(0, start) + insert + inputText.slice(end));
       input.selectionStart = input.selectionEnd = start + 2;
       input.focus();
     }
@@ -52,9 +52,14 @@ export const PromptNode = ({ id, data }: NodeProps) => {
           value={inputText}
           onChange={handleInputChange}
         />
-        <Button className="mt-2" type="primary" onClick={handleInsert}>
-          插入變數
-        </Button>
+        <div className="flex justify-around">
+          <Button className="mt-2" type="primary" onClick={() => handleInsert('{}')}>
+            插入變數
+          </Button>
+          <Button className="mt-2" type="primary" onClick={() => handleInsert('{{}}')}>
+            插入參數
+          </Button>
+        </div>
       </div>
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />

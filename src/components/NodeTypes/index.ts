@@ -3,6 +3,7 @@ import { StepNode } from './StepNode';
 import { PromptNode } from './PromptNode';
 import { SystemNode } from './SystemNode';
 import { VariableNode } from './VariableNode';
+import { FileNode } from './FileNode';
 
 export const nodeTypes = {
   systemNode: SystemNode,
@@ -10,4 +11,5 @@ export const nodeTypes = {
   stepNode: StepNode,
   promptNode: PromptNode,
   variableNode: VariableNode,
+  fileNode: FileNode,
 };
