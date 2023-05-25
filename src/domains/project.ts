@@ -17,7 +17,7 @@ export interface Project {
   openai?: ChatOpenAI;
   apiKey?: string;
   model?: string;
-  system?: string;
+  preSystem?: string;
   messages?: BaseChatMessage[];
   systemFlow?: ReactFlowJsonObject;
   chatFlow?: ReactFlowJsonObject;
@@ -43,7 +43,7 @@ export const useProject = () => {
           projectDescription,
           apiKey,
           model,
-          system,
+          preSystem,
           messages,
           systemFlow,
           chatFlow,
@@ -63,7 +63,7 @@ export const useProject = () => {
           openai,
           apiKey,
           model,
-          system,
+          preSystem,
           messages,
           systemFlow,
           chatFlow,
@@ -81,7 +81,7 @@ export const useProject = () => {
       projectDescription,
       apiKey,
       model,
-      system,
+      preSystem,
       messages,
       systemFlow,
       chatFlow,
@@ -94,7 +94,7 @@ export const useProject = () => {
         projectDescription: projectDescription,
         apiKey,
         model,
-        system,
+        preSystem,
         messages,
         systemFlow,
         chatFlow,
@@ -121,8 +121,6 @@ export const useProject = () => {
 
       if (system) {
         messages.unshift(new SystemChatMessage(system));
-      } else if (project.system) {
-        messages.unshift(new SystemChatMessage(project.system));
       }
       return await project.openai.call(messages, undefined, [
         {

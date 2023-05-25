@@ -98,7 +98,7 @@ const Project = () => {
               projectDescription: project?.projectDescription || '',
               openAIKey: project?.apiKey || '',
               model: project?.model || '',
-              system: project?.system || '',
+              system: project?.preSystem || '',
             }}
             onSave={onSave}
           />

@@ -13,6 +13,7 @@ import { useTeam, ProjectFormData } from '../domains/team';
 import ChatSideBar from '../components/ChatSideBar';
 import ChatProfile from '../components/ChatProfile';
 import { auth } from '../utils/firebase';
+import { SystemParameters } from '../components/SystemParameters';
 
 const TeamPage = () => {
   const appCtx = React.useContext(AppContext);
@@ -25,6 +26,7 @@ const TeamPage = () => {
   const { sendMessages, project, updateProject } = useProject();
 
   const [chatLoading, setLoading] = React.useState(false);
+  const [system, setSystem] = React.useState('');
   const [messages, setMessages] = React.useState<BaseChatMessage[]>([]);
 
   React.useEffect(() => {
@@ -59,6 +61,7 @@ const TeamPage = () => {
       setMessages([...messages, new HumanChatMessage(message), new AIChatMessage('')]);
       await sendMessages.mutateAsync({
         messages: [...messages, new HumanChatMessage(message)],
+        system,
         cb: (token: string) => {
           setMessages((prevMessages) => {
             const updatedMessages = [...prevMessages];
@@ -93,7 +96,6 @@ const TeamPage = () => {
             </div>
             <div className="flex flex-row justify-between bg-white">
               <ChatSideBar />
-
               <div className="flex flex-col justify-between w-full px-5 h-[800px]">
                 <div className="flex justify-end">
                   <antd.Button disabled={chatLoading} type="primary" onClick={saveChat}>
@@ -109,7 +111,14 @@ const TeamPage = () => {
                   />
                 )}
               </div>
-              <ChatProfile />
+              <div className="w-2/5 px-5 border-l-2">
+                <ChatProfile />
+                <SystemParameters
+                  preSystem={project?.preSystem || ''}
+                  system={system}
+                  setSystem={setSystem}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -28,7 +28,7 @@ export const SystemParameters = ({
   setSystem: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const [parameters, setParameters] = React.useState<parameter[]>([]);
-  const { project, makeSystemByTemplate } = useProject();
+  const { makeSystemByTemplate } = useProject();
 
   React.useEffect(() => {
     const result = extractSubstrings(preSystem);
@@ -79,7 +79,7 @@ export const SystemParameters = ({
       <div className="mt-2">
         <Input.TextArea rows={6} value={system} className="w-full mb-2" />
         <div className="flex justify-end">
-          <TestChat system={system ? system : project?.system || ''} />
+          <TestChat system={system} />
         </div>
       </div>
     </>

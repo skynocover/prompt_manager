@@ -112,7 +112,7 @@ const System = () => {
   const onSave = async () => {
     const flow = flowContext.rfInstance?.toObject();
     await updateProject.mutateAsync({
-      system: preSystem,
+      preSystem: preSystem,
       systemFlow: flow,
     });
   };
