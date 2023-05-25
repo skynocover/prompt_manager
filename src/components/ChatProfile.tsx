@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { AppContext } from '../AppContext';
 import { useTeam } from '../domains/team';
 import { useProject, Project } from '../domains/project';
-import { SystemParameters } from '../components/SystemParameters';
+import { EditProject } from '../modals/EditProject';
 
 const ChatProfile = () => {
   const appCtx = React.useContext(AppContext);
@@ -38,9 +38,10 @@ const ChatProfile = () => {
         <div className="flex flex-col">
           <div className="flex items-center space-x-2">
             <div className="py-4 text-xl font-semibold">{project.projectName}</div>
-            <antd.Button type="primary" onClick={() => navigate(`chat`)}>
+            {/* <antd.Button type="primary" onClick={() => navigate(`chat`)}>
               Edit Chat
-            </antd.Button>
+            </antd.Button> */}
+            <EditProject />
 
             <antd.Button type="ghost" onClick={() => deletePj(project)}>
               Delete
