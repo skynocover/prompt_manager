@@ -5,11 +5,10 @@ import { ReactFlowProvider } from 'reactflow';
 import BreadCrumb from '../components/BreadCrumb';
 import Flow from '../components/Flow';
 import { useProject } from '../domains/project';
-import { TestChat } from '../modals/TestChat';
 import { FlowProvider, FlowContext } from '../components/FlowContext';
-
 import { findNodePath } from '../utils/findNodePath';
 import { FlowToolBox, Tool } from '../components/FlowToolBox';
+import { SystemParameters } from '../components/SystemParameters';
 
 const initialNodes = [
   {
@@ -103,18 +102,12 @@ const tools: Tool[] = [
 
 const additionalItems = [{ title: <span className="cursor-pointer">system</span> }];
 
-interface paramater {
-  name: string;
-  value: string;
-}
-
 const System = () => {
   const flowContext = React.useContext(FlowContext);
   const { updateProject, project, makeSystemByTemplate } = useProject();
 
   const [preSystem, setPreSystem] = React.useState('');
   const [system, setSystem] = React.useState<string>('');
-  const [parameters, setParameters] = React.useState<paramater[]>([]);
 
   const onSave = async () => {
     const flow = flowContext.rfInstance?.toObject();
@@ -171,44 +164,6 @@ const System = () => {
     }
   }, [flowContext.rfInstance, makePreSystem]);
 
-  function extractSubstrings(s: string): string[] {
-    const regex = /{([^}]+)}/g;
-    const result: string[] = [];
-    let match;
-    while ((match = regex.exec(s)) !== null) {
-      result.push(match[1]);
-    }
-    return result;
-  }
-
-  React.useEffect(() => {
-    const result = extractSubstrings(preSystem);
-    setParameters(
-      result.map((r) => {
-        return { name: r, value: '' };
-      }),
-    );
-  }, [preSystem]);
-
-  React.useEffect(() => {
-    // 初始化 temp 物件
-    const temp: { [key: string]: string } = {};
-
-    // 遍歷 Parameter 陣列
-    parameters.forEach((param) => {
-      temp[param.name] = param.value;
-    });
-    makeSystemByTemplate({ prompt: preSystem, variable: temp }).then((v) => setSystem(v));
-  }, [preSystem, parameters, makeSystemByTemplate]);
-
-  const handleParameterChange = (index: number, value: string) => {
-    setParameters((prev) => {
-      const temp = [...prev];
-      temp[index] = { name: temp[index].name, value };
-      return temp;
-    });
-  };
-
   return (
     <>
       <div className="fixed left-0 z-20 flex justify-between p-2 bg-white">
@@ -229,26 +184,7 @@ const System = () => {
           </div>
           <Input.TextArea rows={6} value={preSystem} className="w-full mb-2" />
 
-          <div className="flex items-center font-bold">參數</div>
-          <div className="">
-            {parameters.map((para, index) => (
-              <div className="flex items-center mt-2 space-x-2 border-black border-3">
-                <label htmlFor="variableName" className="text-gray-700">
-                  {para.name}:
-                </label>
-                <Input
-                  value={para.value}
-                  onChange={(e) => handleParameterChange(index, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-2">
-            <Input.TextArea rows={6} value={system} className="w-full mb-2" />
-            <div className="flex justify-end">
-              <TestChat system={system ? system : project?.system || ''} />
-            </div>
-          </div>
+          <SystemParameters preSystem={preSystem} system={system} setSystem={setSystem} />
         </div>
       </div>
       <FlowToolBox tools={tools} />
