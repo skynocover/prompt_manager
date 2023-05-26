@@ -32,7 +32,7 @@ const initialNodes = [
     positionAbsolute: { x: 406, y: 723 },
   },
   {
-    width: 288,
+    width: 270,
     height: 156,
     id: '3',
     type: 'variableNode',
@@ -41,7 +41,7 @@ const initialNodes = [
     positionAbsolute: { x: 206, y: 262 },
   },
   {
-    width: 217,
+    width: 270,
     height: 149,
     id: '4',
     type: 'promptNode',
@@ -50,7 +50,7 @@ const initialNodes = [
     positionAbsolute: { x: 240, y: 468 },
   },
   {
-    width: 288,
+    width: 270,
     height: 156,
     id: '2',
     data: { content: '運動', name: '主題' },
@@ -59,7 +59,7 @@ const initialNodes = [
     positionAbsolute: { x: 13, y: 48 },
   },
   {
-    width: 217,
+    width: 270,
     height: 149,
     id: '6',
     data: { content: '如何保持{主題}的習慣', label: 'Node 3' },
@@ -68,12 +68,11 @@ const initialNodes = [
     positionAbsolute: { x: -121, y: 377 },
   },
   {
-    width: 217,
-    height: 149,
+    style: { width: 600 },
     id: '7',
     data: { content: '只使用{{language}}回應' },
     position: { x: 536, y: 146 },
-    type: 'promptNode',
+    type: 'codeNode',
     positionAbsolute: { x: 536, y: 146 },
   },
 ];
@@ -93,12 +92,13 @@ const initialViewPort = { x: 352, y: 204, zoom: 0.92 };
 
 const tools: Tool[] = [
   { title: 'Prompt Node', type: 'promptNode' },
+  { title: 'Code', type: 'codeNode', content: '//this is example' },
+  { title: 'Variable', type: 'variableNode' },
+  { title: 'File', type: 'fileNode' },
   { title: 'Detail', type: 'promptNode', content: '回答時盡量詳細' },
   { title: 'Traditional Chinese', type: 'promptNode', content: '只使用繁體中文回應' },
   { title: 'Example', type: 'promptNode', content: '請舉例說明' },
   { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
-  { title: 'Variable', type: 'variableNode' },
-  { title: 'File', type: 'fileNode' },
   {
     title: 'Code Only',
     type: 'promptNode',

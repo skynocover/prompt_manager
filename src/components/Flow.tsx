@@ -15,12 +15,12 @@ import ReactFlow, {
 } from 'reactflow';
 
 import { FlowContext } from '../components/FlowContext';
-import { nodeTypes } from './NodeTypes';
+import { nodeTypes, nodeStyle } from './NodeTypes';
 import Swal from 'sweetalert2';
 
 const getNewNode = (position: XYPosition, type = 'default', content?: string): Node => {
   const id = `${+new Date()}`;
-  return { id, data: { content }, position, type };
+  return { id, data: { content }, position, type, style: nodeStyle[type] };
 };
 
 const fitViewOptions = { padding: 3 };
