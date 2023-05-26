@@ -1,14 +1,13 @@
 import React, { useCallback } from 'react';
 import { Input } from 'antd';
 import { useProject } from '../domains/project';
-import { TestChat } from '../modals/TestChat';
 
-interface parameter {
+export interface parameter {
   name: string;
   value: string;
 }
 
-const extractSubstrings = (s: string): string[] => {
+export const extractSubstrings = (s: string): string[] => {
   const regex = /{([^}]+)}/g;
   const result: string[] = [];
   let match;
@@ -78,9 +77,6 @@ export const SystemParameters = ({
       </div>
       <div className="mt-2">
         <Input.TextArea rows={6} value={system} className="w-full mb-2" />
-        <div className="flex justify-end">
-          <TestChat system={system} />
-        </div>
       </div>
     </>
   );

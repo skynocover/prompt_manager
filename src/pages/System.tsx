@@ -9,6 +9,8 @@ import { FlowProvider, FlowContext } from '../components/FlowContext';
 import { findNodePath } from '../utils/findNodePath';
 import { FlowToolBox, Tool } from '../components/FlowToolBox';
 import { SystemParameters } from '../components/SystemParameters';
+import { TestChat } from '../modals/TestChat';
+import { ABTestChat } from '../modals/ABTest';
 
 const initialNodes = [
   {
@@ -92,14 +94,13 @@ const initialViewPort = { x: 352, y: 204, zoom: 0.92 };
 const tools: Tool[] = [
   { title: 'Prompt Node', type: 'promptNode' },
   { title: 'Detail', type: 'promptNode', content: '回答時盡量詳細' },
-  { title: 'Code Only', type: 'promptNode', content: '只回應我程式碼的部分' },
   { title: 'Traditional Chinese', type: 'promptNode', content: '只使用繁體中文回應' },
   { title: 'Example', type: 'promptNode', content: '請舉例說明' },
   { title: 'Table', type: 'promptNode', content: '請用表格呈現' },
   { title: 'Variable', type: 'variableNode' },
   { title: 'File', type: 'fileNode' },
   {
-    title: 'OnlyCode',
+    title: 'Code Only',
     type: 'promptNode',
     content:
       '我想讓你充當算法輸出器。我將輸入算法描述，您將回复算法的Typescript實現。我希望您只在一個唯一的代碼塊內回复代碼，而不是其他任何內容。不要寫解釋。除非我指示您這樣做，否則不要鍵入命令。',
@@ -191,6 +192,10 @@ const System = () => {
           <Input.TextArea rows={6} value={preSystem} className="w-full mb-2" />
 
           <SystemParameters preSystem={preSystem} system={system} setSystem={setSystem} />
+          <div className="flex justify-between">
+            <ABTestChat preSystem={preSystem} />
+            <TestChat system={system} />
+          </div>
         </div>
       </div>
       <FlowToolBox tools={tools} />
