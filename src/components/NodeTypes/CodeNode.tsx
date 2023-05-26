@@ -1,22 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
-import { Select } from 'antd';
 import Editor from '@monaco-editor/react';
 import { FlowContext } from '../../components/FlowContext';
 
-const { Option } = Select;
-
-const languages = [
-  'javascript',
-  'python',
-  'java',
+const languages: string[] = [
+  'abap',
+  'apex',
+  'azcli',
+  'bat',
+  'c',
+  'cameligo',
+  'clojure',
+  'coffee',
   'cpp',
   'csharp',
-  'typescript',
-  'ruby',
+  'csp',
+  'css',
+  'dockerfile',
+  'fsharp',
   'go',
+  'graphql',
+  'handlebars',
+  'html',
+  'ini',
+  'java',
+  'javascript',
+  'json',
+  'kotlin',
+  'less',
+  'lexon',
+  'lua',
+  'markdown',
+  'mips',
+  'msdax',
+  'mysql',
+  'objective-c',
+  'pascal',
+  'perl',
+  'pgsql',
   'php',
-  // add or remove as needed
+  'postiats',
+  'powerquery',
+  'powershell',
+  'pug',
+  'python',
+  'r',
+  'razor',
+  'redis',
+  'redshift',
+  'restructuredtext',
+  'ruby',
+  'rust',
+  'sb',
+  'scheme',
+  'scss',
+  'shell',
+  'sol',
+  'sql',
+  'st',
+  'swift',
+  'systemverilog',
+  'tcl',
+  'twig',
+  'typescript',
+  'vb',
+  'xml',
+  'yaml',
 ];
 
 export const CodeNode = ({ id, data }: NodeProps) => {
@@ -45,23 +94,27 @@ export const CodeNode = ({ id, data }: NodeProps) => {
     }
   }, [data]);
 
-  // TODO: 讓Select能用
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguage(event.target.value);
+  };
+
   return (
     <div id={id} className="w-full bg-white">
       <div className="flex items-center justify-center p-2 bg-gray-200 h-100">
         <label>Code</label>
       </div>
       <div className="flex flex-col p-4">
-        <Select defaultValue={language} style={{ width: 200 }} onChange={setLanguage}>
+        <select defaultValue={language} style={{ width: 200 }} onChange={handleSelectChange}>
           {languages.map((lang) => (
-            <Option key={lang} value={lang}>
+            <option key={lang} value={lang}>
               {lang}
-            </Option>
+            </option>
           ))}
-        </Select>
+        </select>
         <Editor
           height="300px"
           defaultLanguage={language}
+          language={language}
           value={inputText}
           onChange={handleEditorChange}
         />

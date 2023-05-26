@@ -72,7 +72,7 @@ const initialNodes = [
     id: '7',
     data: { content: '只使用{{language}}回應' },
     position: { x: 536, y: 146 },
-    type: 'codeNode',
+    type: 'promptNode',
     positionAbsolute: { x: 536, y: 146 },
   },
 ];
