@@ -1,8 +1,7 @@
-import React from 'react';
-import { Modal, Button } from 'antd';
-import * as antd from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Modal, Spin, Input } from 'antd';
 
-import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
+import { BaseChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
 import { useProject } from '../domains/project';
 import { Messages } from '../components/Messages';
 import { parameter, extractSubstrings } from '../components/SystemParameters';
@@ -13,8 +12,16 @@ interface ProjectModalProps {
   preSystem: string;
 }
 
+// 定義 ChatBox 介面，包括三個屬性：訊息、參數和系統
+interface ChatBox {
+  messages: BaseChatMessage[];
+  parameters: parameter[];
+  system: string;
+}
+
+// ABTestChat 函數，為模組主要的導出函數，負責創建聊天模組
 export const ABTestChat = ({ preSystem }: { preSystem: string }) => {
-  const [openChat, setOpenChat] = React.useState(false);
+  const [openChat, setOpenChat] = useState(false);
 
   return (
     <>
@@ -27,99 +34,23 @@ export const ABTestChat = ({ preSystem }: { preSystem: string }) => {
 };
 
 const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
-  const [chatLoading, setLoading] = React.useState(false);
+  const { makeSystemByTemplate, sendMessages } = useProject();
 
-  const [messagesA, setMessagesA] = React.useState<BaseChatMessage[]>([]);
-  const [parametersA, setParametersA] = React.useState<parameter[]>([]);
-  const [systemA, setSystemA] = React.useState('');
+  // 狀態控制
+  const [message, setMessage] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
 
-  const [messagesB, setMessagesB] = React.useState<BaseChatMessage[]>([]);
-  const [parametersB, setParametersB] = React.useState<parameter[]>([]);
-  const [systemB, setSystemB] = React.useState('');
-  const { makeSystemByTemplate } = useProject();
-
-  const { sendMessages } = useProject();
-
-  React.useEffect(() => {
-    const result = extractSubstrings(preSystem);
-    setParametersA(
-      result.map((r) => {
-        return { name: r, value: '' };
-      }),
-    );
-    setParametersB(
-      result.map((r) => {
-        return { name: r, value: '' };
-      }),
-    );
-  }, [preSystem]);
-
-  const makeSystemA = React.useCallback(async () => {
-    const temp: { [key: string]: string } = {};
-    parametersA.forEach((param) => {
-      temp[param.name] = param.value;
-    });
-    const v = await makeSystemByTemplate({ prompt: preSystem, variable: temp });
-    setSystemA(v);
-  }, [preSystem, parametersA, makeSystemByTemplate, setSystemA]);
-
-  React.useEffect(() => {
-    makeSystemA();
-  }, [makeSystemA]);
-
-  const makeSystemB = React.useCallback(async () => {
-    const temp: { [key: string]: string } = {};
-    parametersB.forEach((param) => {
-      temp[param.name] = param.value;
-    });
-    const v = await makeSystemByTemplate({ prompt: preSystem, variable: temp });
-    setSystemB(v);
-  }, [preSystem, parametersB, makeSystemByTemplate, setSystemB]);
-
-  React.useEffect(() => {
-    makeSystemB();
-  }, [makeSystemB]);
-
-  const onSendMessage = async (message: string) => {
-    setLoading(true);
-    try {
-      setMessagesA([...messagesA, new HumanChatMessage(message), new AIChatMessage('')]);
-      sendMessages.mutateAsync({
-        messages: [...messagesA, new HumanChatMessage(message)],
-        system: systemA,
-        cb: (token: string) => {
-          setMessagesA((prevMessages) => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[updatedMessages.length - 1] = new AIChatMessage(
-              updatedMessages[updatedMessages.length - 1].text + token,
-            );
-            return updatedMessages;
-          });
-        },
-      });
-      setMessagesB([...messagesB, new HumanChatMessage(message), new AIChatMessage('')]);
-      sendMessages.mutateAsync({
-        messages: [...messagesB, new HumanChatMessage(message)],
-        system: systemB,
-        cb: (token: string) => {
-          setMessagesB((prevMessages) => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[updatedMessages.length - 1] = new AIChatMessage(
-              updatedMessages[updatedMessages.length - 1].text + token,
-            );
-            return updatedMessages;
-          });
-        },
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+  // 初始化聊天框狀態
+  const chatBoxInitialState = {
+    messages: [],
+    parameters: extractSubstrings(preSystem).map((r) => ({ name: r, value: '' })),
+    system: '',
   };
 
-  const [message, setMessage] = React.useState('');
-  const [isComposing, setIsComposing] = React.useState(false);
+  // 分別創建和管理兩個聊天框的狀態
+  const [chatBoxA, setChatBoxA] = useState<ChatBox>(chatBoxInitialState);
+  const [chatBoxB, setChatBoxB] = useState<ChatBox>(chatBoxInitialState);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !isComposing) {
@@ -133,30 +64,76 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
     }
   };
 
+  // 傳遞訊息的處理函數，包括了請求過程
+  const onSendMessage = useCallback(
+    async (message: string) => {
+      setChatLoading(true);
+      const processChat = async (
+        chatBox: ChatBox,
+        setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>,
+      ) => {
+        const updatedMessages = [
+          ...chatBox.messages,
+          new HumanChatMessage(message),
+          new AIChatMessage(''),
+        ];
+        setChatBox((prev) => ({ ...prev, messages: updatedMessages }));
+
+        const response = await sendMessages({
+          messages: updatedMessages,
+          system: chatBox.system,
+          cb: (token: string) => {
+            setChatBox((prev) => {
+              const lastMessage = prev.messages[prev.messages.length - 1];
+              lastMessage.text += token;
+              return { ...prev, messages: [...prev.messages] };
+            });
+          },
+        });
+
+        return response;
+      };
+
+      try {
+        await Promise.all([processChat(chatBoxA, setChatBoxA), processChat(chatBoxB, setChatBoxB)]);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setChatLoading(false);
+      }
+    },
+    [chatBoxA, chatBoxB, sendMessages],
+  );
+
+  // 根據參數生成系統的處理函數
+  const generateSystem = useCallback(
+    async (parameters: parameter[], setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>) => {
+      const variables = parameters.reduce(
+        (acc, param) => ({ ...acc, [param.name]: param.value }),
+        {},
+      );
+      const system = await makeSystemByTemplate({ prompt: preSystem, variable: variables });
+      setChatBox((prev) => ({ ...prev, system }));
+    },
+    [makeSystemByTemplate, preSystem],
+  );
+
+  // 初始生成兩個系統
+  useEffect(() => {
+    generateSystem(chatBoxA.parameters, setChatBoxA);
+    generateSystem(chatBoxB.parameters, setChatBoxB);
+  }, [chatBoxA.parameters, chatBoxB.parameters, generateSystem]);
+
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null} width={1200}>
       <div className="flex">
-        <MessageWithParams
-          parameters={parametersA}
-          messages={messagesA}
-          setParameters={setParametersA}
-        />
-        <MessageWithParams
-          parameters={parametersB}
-          messages={messagesB}
-          setParameters={setParametersB}
-        />
+        <MessageWithParams chatBox={chatBoxA} setChatBox={setChatBoxA} />
+        <MessageWithParams chatBox={chatBoxB} setChatBox={setChatBoxB} />
       </div>
-
       <div className="py-3">
-        <antd.Spin spinning={chatLoading}>
+        <Spin spinning={chatLoading}>
           <div className="flex">
-            <div
-              className="flex items-center justify-center w-1/6 mr-2 bg-red-400 rounded-md"
-              onClick={() => setMessagesA([])}
-            >
-              Clear
-            </div>
+            <Button onClick={() => setChatBoxA(chatBoxInitialState)}>Clear</Button>
             <textarea
               className="w-full px-3 py-5 bg-gray-300 rounded-xl"
               placeholder="type your message here..."
@@ -167,50 +144,46 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
               onCompositionEnd={() => setIsComposing(false)}
             />
           </div>
-        </antd.Spin>
+        </Spin>
       </div>
     </Modal>
   );
 };
 
 const MessageWithParams = ({
-  parameters,
-  setParameters,
-  messages,
+  chatBox,
+  setChatBox,
 }: {
-  parameters: parameter[];
-  setParameters: React.Dispatch<React.SetStateAction<parameter[]>>;
-  messages: BaseChatMessage[];
+  chatBox: ChatBox;
+  setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>;
 }) => {
-  const handleParameterChange = React.useCallback(
+  const handleParameterChange = useCallback(
     (index: number, value: string) => {
-      setParameters((prev) => {
-        const temp = [...prev];
-        temp[index] = { name: temp[index].name, value };
-        return temp;
+      setChatBox((prev) => {
+        const newParameters = [...prev.parameters];
+        newParameters[index] = { name: newParameters[index].name, value };
+        return { ...prev, parameters: newParameters };
       });
     },
-    [setParameters],
+    [setChatBox],
   );
 
   return (
-    <>
-      <div className="flex-1">
-        <div className="">
-          {parameters.map((para, index) => (
-            <div className="flex items-center mt-2 space-x-2 border-black border-3">
-              <label htmlFor="variableName" className="text-gray-700">
-                {para.name}:
-              </label>
-              <antd.Input
-                value={para.value}
-                onChange={(e) => handleParameterChange(index, e.target.value)}
-              />
-            </div>
-          ))}
-          <Messages messages={messages} />
+    <div className="flex-1">
+      {chatBox.parameters.map((para, index) => (
+        <div className="flex items-center mt-2 space-x-2 border-black border-3">
+          <label htmlFor="variableName" className="text-gray-700">
+            {para.name}:
+          </label>
+          <Input
+            value={para.value}
+            onChange={(e) => handleParameterChange(index, e.target.value)}
+          />
         </div>
-      </div>
-    </>
+      ))}
+      <Messages messages={chatBox.messages} />
+    </div>
   );
 };
+
+export default ABTestChat;

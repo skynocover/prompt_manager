@@ -129,30 +129,28 @@ export const useProject = () => {
     },
   );
 
-  const sendMessages = useMutation(
-    async ({
-      messages,
-      system,
-      cb,
-    }: {
-      messages: BaseChatMessage[];
-      system?: string;
-      cb?: (token: string) => void;
-    }) => {
-      if (!project?.openai) return;
+  const sendMessages = async ({
+    messages,
+    system,
+    cb,
+  }: {
+    messages: BaseChatMessage[];
+    system?: string;
+    cb?: (token: string) => void;
+  }) => {
+    if (!project?.openai) return;
 
-      if (system) {
-        messages.unshift(new SystemChatMessage(system));
-      }
-      return await project.openai.call(messages, undefined, [
-        {
-          handleLLMNewToken(token: string) {
-            cb && cb(token);
-          },
+    if (system) {
+      messages.unshift(new SystemChatMessage(system));
+    }
+    return await project.openai.call(messages, undefined, [
+      {
+        handleLLMNewToken(token: string) {
+          cb && cb(token);
         },
-      ]);
-    },
-  );
+      },
+    ]);
+  };
 
   const makeSystemByTemplate = async ({
     prompt,

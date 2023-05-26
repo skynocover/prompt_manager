@@ -33,7 +33,7 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
     setLoading(true);
     try {
       setMessages([...messages, new HumanChatMessage(message), new AIChatMessage('')]);
-      await sendMessages.mutateAsync({
+      await sendMessages({
         messages: [...messages, new HumanChatMessage(message)],
         system,
         cb: (token: string) => {
