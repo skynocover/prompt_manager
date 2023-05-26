@@ -16,7 +16,6 @@ interface ProjectModalProps {
 interface ChatBox {
   messages: BaseChatMessage[];
   parameters: parameter[];
-  system: string;
 }
 
 // ABTestChat 函數，為模組主要的導出函數，負責創建聊天模組
@@ -44,13 +43,26 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
   // 初始化聊天框狀態
   const chatBoxInitialState = {
     messages: [],
-    parameters: extractSubstrings(preSystem).map((r) => ({ name: r, value: '' })),
+    parameters: [],
     system: '',
   };
 
+  useEffect(() => {
+    setChatBoxA({
+      messages: [],
+      parameters: extractSubstrings(preSystem).map((r) => ({ name: r, value: '' })),
+    });
+    setChatBoxB({
+      messages: [],
+      parameters: extractSubstrings(preSystem).map((r) => ({ name: r, value: '' })),
+    });
+  }, [preSystem]);
+
   // 分別創建和管理兩個聊天框的狀態
   const [chatBoxA, setChatBoxA] = useState<ChatBox>(chatBoxInitialState);
+  const [systemA, setSystemA] = useState('');
   const [chatBoxB, setChatBoxB] = useState<ChatBox>(chatBoxInitialState);
+  const [systemB, setSystemB] = useState('');
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !isComposing) {
@@ -71,6 +83,7 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
       const processChat = async (
         chatBox: ChatBox,
         setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>,
+        system: string,
       ) => {
         const updatedMessages = [
           ...chatBox.messages,
@@ -81,7 +94,7 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
 
         const response = await sendMessages({
           messages: updatedMessages,
-          system: chatBox.system,
+          system: system,
           cb: (token: string) => {
             setChatBox((prev) => {
               const lastMessage = prev.messages[prev.messages.length - 1];
@@ -95,45 +108,62 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
       };
 
       try {
-        await Promise.all([processChat(chatBoxA, setChatBoxA), processChat(chatBoxB, setChatBoxB)]);
+        await Promise.all([
+          processChat(chatBoxA, setChatBoxA, systemA),
+          processChat(chatBoxB, setChatBoxB, systemB),
+        ]);
       } catch (error) {
         console.error(error);
       } finally {
         setChatLoading(false);
       }
     },
-    [chatBoxA, chatBoxB, sendMessages],
+    [chatBoxA, chatBoxB, sendMessages, systemA, systemB],
   );
 
   // 根據參數生成系統的處理函數
   const generateSystem = useCallback(
-    async (parameters: parameter[], setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>) => {
+    async (parameters: parameter[], setSystem: React.Dispatch<React.SetStateAction<string>>) => {
       const variables = parameters.reduce(
         (acc, param) => ({ ...acc, [param.name]: param.value }),
         {},
       );
       const system = await makeSystemByTemplate({ prompt: preSystem, variable: variables });
-      setChatBox((prev) => ({ ...prev, system }));
+      setSystem(system);
     },
     [makeSystemByTemplate, preSystem],
   );
 
-  // 初始生成兩個系統
+  //初始生成兩個系統
   useEffect(() => {
-    generateSystem(chatBoxA.parameters, setChatBoxA);
-    generateSystem(chatBoxB.parameters, setChatBoxB);
-  }, [chatBoxA.parameters, chatBoxB.parameters, generateSystem]);
+    generateSystem(chatBoxA.parameters, setSystemA);
+    generateSystem(chatBoxB.parameters, setSystemB);
+  }, [preSystem, chatBoxA.parameters, chatBoxB.parameters, generateSystem]);
+
+  const clearChat = () => {
+    setChatBoxA((prev) => {
+      return { ...prev, messages: [] };
+    });
+    setChatBoxB((prev) => {
+      return { ...prev, messages: [] };
+    });
+  };
 
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null} width={1200}>
-      <div className="flex">
+      <div className="flex space-x-4">
         <MessageWithParams chatBox={chatBoxA} setChatBox={setChatBoxA} />
         <MessageWithParams chatBox={chatBoxB} setChatBox={setChatBoxB} />
       </div>
       <div className="py-3">
         <Spin spinning={chatLoading}>
-          <div className="flex">
-            <Button onClick={() => setChatBoxA(chatBoxInitialState)}>Clear</Button>
+          <div className="flex ">
+            <div
+              className="flex items-center justify-center w-1/6 mr-2 bg-red-400 rounded-md"
+              onClick={clearChat}
+            >
+              Clear
+            </div>
             <textarea
               className="w-full px-3 py-5 bg-gray-300 rounded-xl"
               placeholder="type your message here..."
