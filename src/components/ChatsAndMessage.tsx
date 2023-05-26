@@ -30,9 +30,9 @@ const ChatsAndMessage = ({
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Messages messages={messages} />
-      <div className="py-3">
+      <div className="py-3 mt-auto">
         <antd.Spin spinning={loading}>
           <div className="flex">
             <div
@@ -53,7 +53,7 @@ const ChatsAndMessage = ({
           </div>
         </antd.Spin>
       </div>
-    </>
+    </div>
   );
 };
 
