@@ -201,7 +201,7 @@ const MessageWithParams = ({
   return (
     <div className="flex-1">
       {chatBox.parameters.map((para, index) => (
-        <div className="flex items-center mt-2 space-x-2 border-black border-3">
+        <div key={index} className="flex items-center mt-2 space-x-2 border-black border-3">
           <label htmlFor="variableName" className="text-gray-700">
             {para.name}:
           </label>

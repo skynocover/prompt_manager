@@ -64,7 +64,7 @@ export const SystemParameters = ({
       <div className="flex items-center font-bold">參數</div>
       <div className="">
         {parameters.map((para, index) => (
-          <div className="flex items-center mt-2 space-x-2 border-black border-3">
+          <div key={index} className="flex items-center mt-2 space-x-2 border-black border-3">
             <label htmlFor="variableName" className="text-gray-700">
               {para.name}:
             </label>
