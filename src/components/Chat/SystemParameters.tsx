@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Input } from 'antd';
 import { useProject } from '../../domains/project';
 import { extractSubstrings } from '../../utils/handleStr';
+import { getPrompt } from '../../utils/echarts';
 
 export interface parameter {
   name: string;
@@ -12,10 +13,12 @@ export const SystemParameters = ({
   preSystem,
   system,
   setSystem,
+  chartType,
 }: {
   preSystem: string;
   system: string;
   setSystem: React.Dispatch<React.SetStateAction<string>>;
+  chartType: string;
 }) => {
   const [parameters, setParameters] = React.useState<parameter[]>([]);
   const { makeSystemByTemplate } = useProject();
@@ -35,8 +38,8 @@ export const SystemParameters = ({
       temp[param.name] = param.value;
     });
     const v = await makeSystemByTemplate({ prompt: preSystem, variable: temp });
-    setSystem(v);
-  }, [preSystem, parameters, makeSystemByTemplate, setSystem]);
+    setSystem(v + getPrompt(chartType));
+  }, [parameters, makeSystemByTemplate, preSystem, setSystem, chartType]);
 
   React.useEffect(() => {
     makeSystem();

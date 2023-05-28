@@ -5,7 +5,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
 
 import { AppContext } from '../AppContext';
-import { Chat } from '../components/Chat/ChatsAndMessage';
+import { ChatInput } from '../components/Chat/ChatInput';
 import { Messages } from '../components/Chat/Messages';
 import { BreadCrumb } from '../components/BreadCrumb';
 import { AddProject } from '../modals/AddProject';
@@ -108,8 +108,14 @@ const TeamPage = () => {
                     保存對話
                   </antd.Button>
                 </div>
-                <Messages messages={messages} />
-                <Chat
+                <Messages
+                  messages={messages}
+                  responseType={
+                    project?.systemFlow?.nodes.find((item) => item.type === 'outputNode')?.data
+                      .chartType
+                  }
+                />
+                <ChatInput
                   loading={chatLoading}
                   onSendMessage={onSendMessage}
                   clear={() => setMessages([])}
@@ -121,6 +127,10 @@ const TeamPage = () => {
                   preSystem={project?.preSystem || ''}
                   system={system}
                   setSystem={setSystem}
+                  chartType={
+                    project?.systemFlow?.nodes.find((item) => item.type === 'outputNode')?.data
+                      .chartType
+                  }
                 />
               </div>
             </div>

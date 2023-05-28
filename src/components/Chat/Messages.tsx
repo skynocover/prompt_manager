@@ -1,7 +1,17 @@
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { BaseChatMessage } from 'langchain/schema';
+import ReactECharts from 'echarts-for-react';
 
-export const Messages = ({ messages }: { messages: BaseChatMessage[] }) => {
+import { BaseChatMessage } from 'langchain/schema';
+import { getOption } from '../../utils/echarts';
+
+export const Messages = ({
+  messages,
+  responseType,
+}: {
+  messages: BaseChatMessage[];
+  responseType: string;
+}) => {
   return (
     <div className="flex flex-col mt-5 overflow-scroll">
       {messages.map((m, index) => {
@@ -17,7 +27,7 @@ export const Messages = ({ messages }: { messages: BaseChatMessage[] }) => {
           return (
             <div key={index} className="flex justify-start mb-4">
               <div className="px-4 py-3 ml-2 text-white bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl">
-                <ReactMarkdown>{m.text}</ReactMarkdown>
+                <Message responseType={responseType} text={m.text} />
               </div>
             </div>
           );
@@ -25,4 +35,22 @@ export const Messages = ({ messages }: { messages: BaseChatMessage[] }) => {
       })}
     </div>
   );
+};
+
+const Message = ({ responseType, text }: { text: string; responseType: string }) => {
+  const [option, setOption] = React.useState<Record<string, unknown>>({});
+
+  React.useEffect(() => {
+    try {
+      const response = JSON.parse(text);
+      setOption(getOption(responseType, response));
+    } catch (error) {
+      console.log("Can't parse message:", text);
+    }
+  }, [responseType, text]);
+
+  if (responseType === 'general') {
+    return <ReactMarkdown>{text}</ReactMarkdown>;
+  }
+  return <ReactECharts option={option} style={{ height: 400, width: 600 }} />;
 };

@@ -17,7 +17,7 @@ export const findNodePath = (flow: ReactFlowJsonObject): Node[][] => {
   let endNodeID: string | null = null;
   for (const node of nodes) {
     if (node.type === 'input') startNodeID = node.id;
-    if (node.type === 'output') endNodeID = node.id;
+    if (node.type === 'outputNode') endNodeID = node.id;
   }
 
   if (!startNodeID || !endNodeID) {

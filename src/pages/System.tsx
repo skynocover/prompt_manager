@@ -26,8 +26,8 @@ const initialNodes = [
     width: 150,
     height: 36,
     id: '1',
-    type: 'output',
-    data: { label: '輸出' },
+    type: 'outputNode',
+    data: { label: '輸出', chartType: 'barChart' },
     position: { x: 406, y: 723 },
     positionAbsolute: { x: 406, y: 723 },
   },
@@ -68,7 +68,6 @@ const initialNodes = [
     positionAbsolute: { x: -121, y: 377 },
   },
   {
-    style: { width: 600 },
     id: '7',
     data: { content: '只使用{{language}}回應' },
     position: { x: 536, y: 146 },
@@ -191,7 +190,12 @@ const System = () => {
           </div>
           <Input.TextArea rows={6} value={preSystem} className="w-full mb-2" />
 
-          <SystemParameters preSystem={preSystem} system={system} setSystem={setSystem} />
+          <SystemParameters
+            preSystem={preSystem}
+            system={system}
+            setSystem={setSystem}
+            chartType={flowContext.nodes.find((item) => item.type === 'outputNode')?.data.chartType}
+          />
           <div className="flex justify-between">
             <ABTestChat preSystem={preSystem} />
             <TestChat system={system} />

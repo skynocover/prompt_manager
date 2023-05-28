@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal, Button } from 'antd';
-
 import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
-import { Chat } from '../components/Chat/ChatsAndMessage';
+
+import { FlowContext } from '../components/Flow/FlowContext';
+import { ChatInput } from '../components/Chat/ChatInput';
 import { Messages } from '../components/Chat/Messages';
 import { useProject } from '../domains/project';
 
@@ -25,6 +26,7 @@ export const TestChat = ({ system }: { system?: string }) => {
   );
 };
 const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
+  const { nodes } = React.useContext(FlowContext);
   const [chatLoading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<BaseChatMessage[]>([]);
 
@@ -55,10 +57,17 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
   };
 
   return (
-    <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null}>
+    <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null} width={800}>
       <div className="h-[750px] flex flex-col">
-        <Messages messages={messages} />
-        <Chat loading={chatLoading} onSendMessage={onSendMessage} clear={() => setMessages([])} />
+        <Messages
+          messages={messages}
+          responseType={nodes.find((item) => item.type === 'outputNode')?.data.chartType}
+        />
+        <ChatInput
+          loading={chatLoading}
+          onSendMessage={onSendMessage}
+          clear={() => setMessages([])}
+        />
       </div>
     </Modal>
   );

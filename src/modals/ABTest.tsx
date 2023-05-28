@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Modal, Spin, Input } from 'antd';
-
 import { BaseChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
+
+import { FlowContext } from '../components/Flow/FlowContext';
 import { useProject } from '../domains/project';
 import { Messages } from '../components/Chat/Messages';
 import { parameter } from '../components/Chat/SystemParameters';
@@ -34,6 +35,7 @@ export const ABTestChat = ({ preSystem }: { preSystem: string }) => {
 };
 
 const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
+  const { nodes } = React.useContext(FlowContext);
   const { makeSystemByTemplate, sendMessages } = useProject();
 
   // 狀態控制
@@ -153,8 +155,16 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null} width={1200}>
       <div className="flex space-x-4">
-        <MessageWithParams chatBox={chatBoxA} setChatBox={setChatBoxA} />
-        <MessageWithParams chatBox={chatBoxB} setChatBox={setChatBoxB} />
+        <MessageWithParams
+          chatBox={chatBoxA}
+          setChatBox={setChatBoxA}
+          responseType={nodes.find((item) => item.type === 'outputNode')?.data.chartType}
+        />
+        <MessageWithParams
+          chatBox={chatBoxB}
+          setChatBox={setChatBoxB}
+          responseType={nodes.find((item) => item.type === 'outputNode')?.data.chartType}
+        />
       </div>
       <div className="py-3">
         <Spin spinning={chatLoading}>
@@ -184,9 +194,11 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, preSystem }) => {
 const MessageWithParams = ({
   chatBox,
   setChatBox,
+  responseType,
 }: {
   chatBox: ChatBox;
   setChatBox: React.Dispatch<React.SetStateAction<ChatBox>>;
+  responseType: string;
 }) => {
   const handleParameterChange = useCallback(
     (index: number, value: string) => {
@@ -212,7 +224,7 @@ const MessageWithParams = ({
           />
         </div>
       ))}
-      <Messages messages={chatBox.messages} />
+      <Messages messages={chatBox.messages} responseType={responseType} />
     </div>
   );
 };

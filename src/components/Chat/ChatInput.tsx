@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import * as antd from 'antd';
 
-export const Chat = ({
+export const ChatInput = ({
   loading,
   onSendMessage,
   clear,
