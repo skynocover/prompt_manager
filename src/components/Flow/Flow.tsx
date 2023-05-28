@@ -14,7 +14,7 @@ import ReactFlow, {
   getConnectedEdges,
 } from 'reactflow';
 
-import { FlowContext } from '../components/FlowContext';
+import { FlowContext } from './FlowContext';
 import { nodeTypes, nodeStyle } from './NodeTypes';
 import Swal from 'sweetalert2';
 
@@ -27,7 +27,7 @@ const fitViewOptions = { padding: 3 };
 
 let connecting = false;
 
-const Flow = ({
+export const Flow = ({
   initialNodes,
   initialEdges,
   initialViewport,
@@ -211,5 +211,3 @@ const Flow = ({
     </div>
   );
 };
-
-export default Flow;

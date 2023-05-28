@@ -7,7 +7,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { AppContext } from '../AppContext';
 import { useTeams, Team } from '../domains/teams';
-import BreadCrumb from '../components/BreadCrumb';
+import { BreadCrumb } from '../components/BreadCrumb';
 import { auth } from '../utils/firebase';
 
 const Teams = () => {

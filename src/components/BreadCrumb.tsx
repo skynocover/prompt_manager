@@ -9,7 +9,7 @@ interface BreadcrumbItem {
   title: React.ReactNode;
 }
 
-const BreadCrumb = ({ additionalItems }: { additionalItems?: BreadcrumbItem[] }) => {
+export const BreadCrumb = ({ additionalItems }: { additionalItems?: BreadcrumbItem[] }) => {
   const { team } = useTeam();
   const { project } = useProject();
   const navigate = useNavigate();
@@ -58,5 +58,3 @@ const BreadCrumb = ({ additionalItems }: { additionalItems?: BreadcrumbItem[] })
 
   return <Breadcrumb items={items} />;
 };
-
-export default BreadCrumb;

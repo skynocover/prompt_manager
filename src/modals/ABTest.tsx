@@ -3,8 +3,9 @@ import { Button, Modal, Spin, Input } from 'antd';
 
 import { BaseChatMessage, HumanChatMessage, AIChatMessage } from 'langchain/schema';
 import { useProject } from '../domains/project';
-import { Messages } from '../components/Messages';
-import { parameter, extractSubstrings } from '../components/SystemParameters';
+import { Messages } from '../components/Chat/Messages';
+import { parameter } from '../components/Chat/SystemParameters';
+import { extractSubstrings } from '../utils/handleStr';
 
 interface ProjectModalProps {
   open: boolean;

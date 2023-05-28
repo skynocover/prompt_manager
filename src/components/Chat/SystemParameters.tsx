@@ -1,21 +1,12 @@
 import React, { useCallback } from 'react';
 import { Input } from 'antd';
-import { useProject } from '../domains/project';
+import { useProject } from '../../domains/project';
+import { extractSubstrings } from '../../utils/handleStr';
 
 export interface parameter {
   name: string;
   value: string;
 }
-
-export const extractSubstrings = (s: string): string[] => {
-  const regex = /{([^}]+)}/g;
-  const result: string[] = [];
-  let match;
-  while ((match = regex.exec(s)) !== null) {
-    result.push(match[1]);
-  }
-  return result;
-};
 
 export const SystemParameters = ({
   preSystem,

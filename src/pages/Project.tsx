@@ -1,14 +1,14 @@
 import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
 
-import BreadCrumb from '../components/BreadCrumb';
-import Flow from '../components/Flow';
+import { BreadCrumb } from '../components/BreadCrumb';
+import { Flow } from '../components/Flow/Flow';
 import ProjectSetting, { ProjectData } from '../components/ProjectSetting';
 import { useProject } from '../domains/project';
 import { TestChat } from '../modals/TestChat';
-import { FlowProvider, FlowContext } from '../components/FlowContext';
+import { FlowProvider, FlowContext } from '../components/Flow/FlowContext';
 
-import { FlowToolBox, Tool } from '../components/FlowToolBox';
+import { FlowToolBox, Tool } from '../components/Flow/FlowToolBox';
 
 const additionalItems = [{ title: <span className="cursor-pointer">project</span> }];
 

@@ -5,15 +5,16 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
 
 import { AppContext } from '../AppContext';
-import ChatsAndMessage from '../components/ChatsAndMessage';
-import BreadCrumb from '../components/BreadCrumb';
+import { Chat } from '../components/Chat/ChatsAndMessage';
+import { Messages } from '../components/Chat/Messages';
+import { BreadCrumb } from '../components/BreadCrumb';
 import { AddProject } from '../modals/AddProject';
 import { useProject } from '../domains/project';
 import { useTeam, ProjectFormData } from '../domains/team';
-import ChatSideBar from '../components/ChatSideBar';
-import ChatProfile from '../components/ChatProfile';
+import { ChatSideBar } from '../components/Chat/ChatSideBar';
+import { ChatProfile } from '../components/Chat/ChatProfile';
 import { auth } from '../utils/firebase';
-import { SystemParameters } from '../components/SystemParameters';
+import { SystemParameters } from '../components/Chat/SystemParameters';
 
 const TeamPage = () => {
   const appCtx = React.useContext(AppContext);
@@ -107,10 +108,9 @@ const TeamPage = () => {
                     保存對話
                   </antd.Button>
                 </div>
-
-                <ChatsAndMessage
+                <Messages messages={messages} />
+                <Chat
                   loading={chatLoading}
-                  messages={messages}
                   onSendMessage={onSendMessage}
                   clear={() => setMessages([])}
                 />

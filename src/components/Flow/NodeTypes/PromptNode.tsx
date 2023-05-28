@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { Button } from 'antd';
 
-import { FlowContext } from '../../components/FlowContext';
+import { FlowContext } from '../FlowContext';
 
 export const PromptNode = ({ id, data }: NodeProps) => {
   const { nodes, setNodes } = React.useContext(FlowContext);

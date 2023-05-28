@@ -2,13 +2,13 @@ import React, { useCallback } from 'react';
 import { Input, Button } from 'antd';
 import { ReactFlowProvider } from 'reactflow';
 
-import BreadCrumb from '../components/BreadCrumb';
-import Flow from '../components/Flow';
+import { BreadCrumb } from '../components/BreadCrumb';
+import { Flow } from '../components/Flow/Flow';
 import { useProject } from '../domains/project';
-import { FlowProvider, FlowContext } from '../components/FlowContext';
+import { FlowProvider, FlowContext } from '../components/Flow/FlowContext';
 import { findNodePath } from '../utils/findNodePath';
-import { FlowToolBox, Tool } from '../components/FlowToolBox';
-import { SystemParameters } from '../components/SystemParameters';
+import { FlowToolBox, Tool } from '../components/Flow/FlowToolBox';
+import { SystemParameters } from '../components/Chat/SystemParameters';
 import { TestChat } from '../modals/TestChat';
 import { ABTestChat } from '../modals/ABTest';
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { AppContext } from '../AppContext';
-import { useTeam, IProjectInfo } from '../domains/team';
-import { useProject } from '../domains/project';
+import { AppContext } from '../../AppContext';
+import { useTeam, IProjectInfo } from '../../domains/team';
+import { useProject } from '../../domains/project';
 
-const ChatSideBar = () => {
+export const ChatSideBar = () => {
   const appCtx = React.useContext(AppContext);
   const [searchText, setSearchText] = React.useState('');
   const { projects } = useTeam();
@@ -42,5 +42,3 @@ const ChatSideBar = () => {
     </div>
   );
 };
-
-export default ChatSideBar;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import Editor from '@monaco-editor/react';
-import { FlowContext } from '../../components/FlowContext';
+import { FlowContext } from '../FlowContext';
 
 const languages: string[] = [
   'abap',

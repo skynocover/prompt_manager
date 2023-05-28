@@ -2,7 +2,8 @@ import React from 'react';
 import { Modal, Button } from 'antd';
 
 import { HumanChatMessage, BaseChatMessage, AIChatMessage } from 'langchain/schema';
-import ChatsAndMessage from '../components/ChatsAndMessage';
+import { Chat } from '../components/Chat/ChatsAndMessage';
+import { Messages } from '../components/Chat/Messages';
 import { useProject } from '../domains/project';
 
 interface ProjectModalProps {
@@ -56,12 +57,8 @@ const ChatModal: React.FC<ProjectModalProps> = ({ open, close, system }) => {
   return (
     <Modal open={open} title="測試聊天機器人" onCancel={close} footer={null}>
       <div className="h-[750px] flex flex-col">
-        <ChatsAndMessage
-          loading={chatLoading}
-          messages={messages}
-          onSendMessage={onSendMessage}
-          clear={() => setMessages([])}
-        />
+        <Messages messages={messages} />
+        <Chat loading={chatLoading} onSendMessage={onSendMessage} clear={() => setMessages([])} />
       </div>
     </Modal>
   );
